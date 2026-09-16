@@ -1,5 +1,258 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0b10"><title>سوا | Sawa</title><style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#09090e;color:#fff;margin:0}main{max-width:900px;margin:auto;padding:20px}.brand{font-size:42px;margin:8px 0}.muted{color:#aaa}.card{background:#17171f;border:1px solid #292934;border-radius:20px;padding:17px;margin:14px 0;box-shadow:0 10px 35px #0004}.row{display:flex;gap:9px;flex-wrap:wrap}input,button{padding:13px;border-radius:12px;font-size:16px}input{flex:1;min-width:190px;background:#0e0e15;color:white;border:1px solid #363642}button{border:0;background:#6c5ce7;color:white;font-weight:750;cursor:pointer}button.secondary{background:#2a2a35}video{width:100%;max-height:510px;background:#000;border-radius:15px;margin-top:13px}.pill{display:inline-block;padding:6px 10px;background:#292934;border-radius:99px;font-size:13px}#messages{height:190px;overflow:auto;background:#0e0e15;border-radius:12px;padding:9px}.msg,.sys{padding:7px 9px;margin:5px 0;border-radius:10px}.msg{background:#242430}.sys{color:#999;font-size:13px}.notice{font-size:13px;line-height:1.7;color:#bbb}@media(max-width:600px){.brand{font-size:34px}main{padding:14px}button{flex-grow:1}}</style></head><body><main><h1 class="brand">سوا <span class="muted">Sawa</span></h1><p>شاهد فيديو مع صديقك في نفس اللحظة.</p>
-<div class="card"><div class="row"><input id="name" placeholder="اسمك"><input id="room" placeholder="رمز الغرفة"><button id="join">دخول</button><button class="secondary" id="copy">نسخ الدعوة</button></div><p><span class="pill" id="status">غير متصل</span></p></div>
-<div class="card"><div class="row"><input id="url" placeholder="رابط فيديو مباشر MP4 / WebM"><button id="load">تشغيل الرابط للجميع</button></div><video id="v" controls playsinline></video><p class="notice">التشغيل والإيقاف والتقديم تتم مزامنتها بين الموجودين في الغرفة. لا يدعم تجاوز DRM في Netflix أو شاهد.</p></div>
-<div class="card"><h3>الشات</h3><div id="messages"></div><div class="row" style="margin-top:9px"><input id="chat" placeholder="اكتب رسالة"><button id="send">إرسال</button></div></div></main>
-<script src="/socket.io/socket.io.js"></script><script>const $=x=>document.getElementById(x),socket=io(),v=$('v');let room='',applying=false;const qs=new URLSearchParams(location.search);$('room').value=qs.get('room')||'';$('name').value=localStorage.sawaName||'';function sys(t){let d=document.createElement('div');d.className='sys';d.textContent=t;$('messages').append(d);$('messages').scrollTop=99999}function join(){room=$('room').value.trim()||Math.random().toString(36).slice(2,8);$('room').value=room;let name=$('name').value.trim()||'ضيف';localStorage.sawaName=name;history.replaceState(null,'','?room='+encodeURIComponent(room));socket.emit('join',{room,name});$('status').textContent='الغرفة: '+room} $('join').onclick=join;$('copy').onclick=async()=>{if(!room)join();await navigator.clipboard.writeText(location.href);$('status').textContent='تم نسخ رابط الدعوة'};$('load').onclick=()=>{let u=$('url').value.trim();if(!u)return;v.src=u;v.load();socket.emit('video',u)};socket.on('state',st=>{if(st.video){v.src=st.video;v.currentTime=st.time||0;if(st.playing)v.play().catch(()=>{})}});socket.on('video',u=>{applying=true;v.src=u;v.load();setTimeout(()=>applying=false,300)});socket.on('sync',st=>{applying=true;if(Math.abs(v.currentTime-st.time)>0.7)v.currentTime=st.time;if(st.playing)v.play().catch(()=>{});else v.pause();setTimeout(()=>applying=false,250)});socket.on('system',sys);socket.on('chat',m=>{let d=document.createElement('div');d.className='msg';d.textContent=m.name+': '+m.text;$('messages').append(d);$('messages').scrollTop=99999});function sync(){if(!applying&&room)socket.emit('sync',{time:v.currentTime,playing:!v.paused})}v.onplay=sync;v.onpause=sync;v.onseeked=sync;$('send').onclick=()=>{let t=$('chat').value.trim();if(t&&room){socket.emit('chat',t);$('chat').value=''}};$('chat').onkeydown=e=>{if(e.key==='Enter')$('send').click()};if($('room').value)join();</script></body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سوا</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b12;
+      color: white;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px;
+      text-align: center;
+      background: #151522;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: #181824;
+      padding: 20px;
+      border-radius: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 { margin-top: 0; }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 7px 0;
+      border: 0;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 10px;
+      background: #6c5cff;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #room {
+      display: none;
+    }
+
+    video {
+      width: 100%;
+      background: black;
+      border-radius: 12px;
+      margin-top: 15px;
+    }
+
+    #messages {
+      height: 180px;
+      overflow-y: auto;
+      background: #0e0e16;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+
+    .msg {
+      padding: 7px;
+      border-bottom: 1px solid #252535;
+    }
+
+    .roomCode {
+      color: #9c91ff;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>🎬 سوا</header>
+
+<div class="container">
+
+  <div id="home" class="card">
+    <h2>شاهدوا سوا 🍿</h2>
+
+    <input id="name" placeholder="اسمك">
+
+    <button onclick="createRoom()">إنشاء غرفة</button>
+
+    <input id="roomInput" placeholder="اكتب رمز الغرفة">
+
+    <button onclick="joinRoom()">دخول الغرفة</button>
+  </div>
+
+  <div id="room" class="card">
+    <h2>الغرفة</h2>
+
+    <p>
+      رمز الغرفة:
+      <span id="roomCode" class="roomCode"></span>
+    </p>
+
+    <input id="videoUrl" placeholder="رابط فيديو مباشر">
+
+    <button onclick="loadVideo()">تشغيل الفيديو</button>
+
+    <video id="video" controls playsinline></video>
+
+    <div id="messages"></div>
+
+    <input id="message" placeholder="اكتب رسالة...">
+
+    <button onclick="sendMessage()">إرسال</button>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  const socket = io();
+
+  let currentRoom = "";
+  let username = "";
+
+  function createRoom() {
+    username =
+      document.getElementById("name").value.trim() || "ضيف";
+
+    currentRoom = Math.random()
+      .toString(36)
+      .substring(2, 8)
+      .toUpperCase();
+
+    enterRoom();
+  }
+
+  function joinRoom() {
+    username =
+      document.getElementById("name").value.trim() || "ضيف";
+
+    currentRoom =
+      document.getElementById("roomInput")
+      .value.trim()
+      .toUpperCase();
+
+    if (!currentRoom) {
+      alert("اكتب رمز الغرفة");
+      return;
+    }
+
+    enterRoom();
+  }
+
+  function enterRoom() {
+    socket.emit("join-room", currentRoom);
+
+    document.getElementById("home").style.display = "none";
+    document.getElementById("room").style.display = "block";
+    document.getElementById("roomCode").textContent = currentRoom;
+  }
+
+  function loadVideo() {
+    const url =
+      document.getElementById("videoUrl").value.trim();
+
+    if (!url) return;
+
+    document.getElementById("video").src = url;
+
+    socket.emit("video-change", {
+      room: currentRoom,
+      url: url
+    });
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("message");
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    socket.emit("chat-message", {
+      room: currentRoom,
+      name: username,
+      text: text
+    });
+
+    input.value = "";
+  }
+
+  socket.on("chat-message", data => {
+    const div = document.createElement("div");
+    div.className = "msg";
+    div.textContent = data.name + ": " + data.text;
+
+    document.getElementById("messages").appendChild(div);
+  });
+
+  socket.on("video-change", url => {
+    document.getElementById("video").src = url;
+  });
+
+  const video = document.getElementById("video");
+
+  video.addEventListener("play", () => {
+    if (currentRoom) {
+      socket.emit("video-control", {
+        room: currentRoom,
+        action: "play",
+        time: video.currentTime
+      });
+    }
+  });
+
+  video.addEventListener("pause", () => {
+    if (currentRoom) {
+      socket.emit("video-control", {
+        room: currentRoom,
+        action: "pause",
+        time: video.currentTime
+      });
+    }
+  });
+
+  socket.on("video-control", data => {
+    video.currentTime = data.time;
+
+    if (data.action === "play") {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  });
+</script>
+
+</body>
+</html>
