@@ -1,9 +1,93 @@
-const express=require('express');const http=require('http');const {Server}=require('socket.io');
-const app=express(),server=http.createServer(app),io=new Server(server);app.use(express.static('public'));
-const rooms=new Map();
-io.on('connection',s=>{s.on('join',({room,name})=>{room=String(room||'').slice(0,40);name=String(name||'ضيف').slice(0,24);if(!room)return;s.join(room);s.data={room,name};if(!rooms.has(room))rooms.set(room,{video:'',time:0,playing:false});s.emit('state',rooms.get(room));io.to(room).emit('system',`${name} دخل الغرفة`);});
-s.on('video',u=>{let r=s.data?.room;if(!r)return;let st=rooms.get(r);st.video=String(u||'').slice(0,2000);st.time=0;st.playing=false;s.to(r).emit('video',st.video)});
-s.on('sync',d=>{let r=s.data?.room;if(!r)return;let st=rooms.get(r);st.time=Number(d.time)||0;st.playing=!!d.playing;s.to(r).emit('sync',st)});
-s.on('chat',t=>{let r=s.data?.room;if(!r)return;io.to(r).emit('chat',{name:s.data.name,text:String(t||'').slice(0,500),at:Date.now()})});
-s.on('disconnect',()=>{let r=s.data?.room;if(r)io.to(r).emit('system',`${s.data.name} خرج من الغرفة`)})});
-server.listen(process.env.PORT||3000,()=>console.log('Sawa running'));
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.use(express.static(__dirname));
+
+const rooms = new Map();
+
+io.on('connection', (socket) => {
+
+  socket.on('join', ({ room, name }) => {
+    room = String(room || '').slice(0, 40);
+    name = String(name || 'ضيف').slice(0, 30);
+
+    if (!room) return;
+
+    socket.join(room);
+    socket.data.room = room;
+    socket.data.name = name;
+
+    if (!rooms.has(room)) {
+      rooms.set(room, {
+        video: '',
+        time: 0,
+        playing: false
+      });
+    }
+
+    socket.emit('state', rooms.get(room));
+    socket.to(room).emit('system', `${name} دخل الغرفة`);
+  });
+
+  socket.on('video', (url) => {
+    const room = socket.data.room;
+    if (!room) return;
+
+    const state = rooms.get(room);
+    if (!state) return;
+
+    state.video = String(url || '').slice(0, 2000);
+    state.time = 0;
+    state.playing = false;
+
+    io.to(room).emit('video', state.video);
+  });
+
+  socket.on('sync', (data) => {
+    const room = socket.data.room;
+    if (!room) return;
+
+    const state = rooms.get(room);
+    if (!state) return;
+
+    state.time = Number(data.time) || 0;
+    state.playing = !!data.playing;
+
+    socket.to(room).emit('sync', {
+      time: state.time,
+      playing: state.playing
+    });
+  });
+
+  socket.on('chat', (text) => {
+    const room = socket.data.room;
+    if (!room) return;
+
+    io.to(room).emit('chat', {
+      name: socket.data.name || 'ضيف',
+      text: String(text || '').slice(0, 500)
+    });
+  });
+
+  socket.on('disconnect', () => {
+    const room = socket.data.room;
+
+    if (room) {
+      socket.to(room).emit(
+        'system',
+        `${socket.data.name || 'ضيف'} خرج من الغرفة`
+      );
+    }
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log('Sawa running');
+});
