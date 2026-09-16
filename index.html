@@ -252,6 +252,10 @@
       video.pause();
     }
   });
+  socket.on("video", (url) => {
+  video.src = url;
+  video.load();
+});
 </script>
 
 </body>
