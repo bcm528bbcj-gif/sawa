@@ -15,7 +15,7 @@ io.on("connection", (socket) => {
   socket.on("join", ({ room, name }) => {
     if (!room) return;
 
-    room = room.toUpperCase();
+    room = String(room).toUpperCase();
 
     socket.join(room);
     socket.data.room = room;
@@ -24,6 +24,7 @@ io.on("connection", (socket) => {
     if (!rooms.has(room)) {
       rooms.set(room, {
         video: "",
+        youtube: "",
         time: 0,
         playing: false
       });
@@ -31,7 +32,8 @@ io.on("connection", (socket) => {
 
     socket.emit("room-state", rooms.get(room));
 
-    io.to(room).emit("system",
+    io.to(room).emit(
+      "system",
       `${socket.data.name} دخل الغرفة`
     );
   });
@@ -40,40 +42,51 @@ io.on("connection", (socket) => {
   // الدردشة
   socket.on("chat", (text) => {
     const room = socket.data.room;
-
     if (!room) return;
 
     const message = String(text || "").trim();
-
     if (!message) return;
 
-    io.in(room).emit("chat", {
+    io.to(room).emit("chat", {
       name: socket.data.name || "زائر",
       text: message.slice(0, 500)
     });
   });
 
 
-  // الفيديو
+  // فيديو مباشر MP4
   socket.on("video", (url) => {
     const room = socket.data.room;
-
     if (!room || !rooms.has(room)) return;
 
     const state = rooms.get(room);
 
     state.video = String(url || "").slice(0, 2000);
+    state.youtube = "";
     state.time = 0;
     state.playing = false;
 
-    io.in(room).emit("video", state.video);
+    io.to(room).emit("video", state.video);
   });
 
 
-  // مزامنة الفيديو
+  // YouTube
+  socket.on("youtube", (url) => {
+    const room = socket.data.room;
+    if (!room || !rooms.has(room)) return;
+
+    const state = rooms.get(room);
+
+    state.youtube = String(url || "").slice(0, 2000);
+    state.video = "";
+
+    io.to(room).emit("youtube", state.youtube);
+  });
+
+
+  // مزامنة الفيديو المباشر
   socket.on("sync", (data) => {
     const room = socket.data.room;
-
     if (!room || !rooms.has(room)) return;
 
     const state = rooms.get(room);
@@ -91,7 +104,6 @@ io.on("connection", (socket) => {
   // Netflix
   socket.on("netflix", (url) => {
     const room = socket.data.room;
-
     if (!room) return;
 
     const netflixUrl = String(
