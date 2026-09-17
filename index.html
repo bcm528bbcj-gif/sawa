@@ -1,24 +1,46 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
 <title>رزان</title>
 
+<!-- إعدادات التطبيق -->
+<link rel="manifest" href="/manifest.json">
+
+<meta name="theme-color" content="#141422">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style"
+content="black-translucent">
+
+<meta name="apple-mobile-web-app-title"
+content="رزان">
+
 <style>
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
   background:#08080f;
   color:white;
   font-family:Arial,sans-serif;
+  min-height:100vh;
 }
 
 header{
   background:#141422;
   text-align:center;
   padding:25px;
+  padding-top:max(25px, env(safe-area-inset-top));
   font-size:30px;
   font-weight:bold;
 }
@@ -35,7 +57,9 @@ header{
   border-radius:20px;
 }
 
-h1{text-align:center}
+h1{
+  text-align:center;
+}
 
 input{
   width:100%;
@@ -111,106 +135,138 @@ video{
   color:#aaa;
   text-align:center;
 }
+
 </style>
+
 </head>
+
 
 <body>
 
-<header>🎬 رزان</header>
+<header>
+🎬 رزان
+</header>
+
 
 <div class="container">
 
-  <!-- الصفحة الرئيسية -->
-  <div id="homePage" class="card">
 
-    <h1>🍿 شاهدوا رزان</h1>
+<!-- الرئيسية -->
 
-    <input id="name" placeholder="اسمك">
+<div id="homePage" class="card">
 
-    <button type="button" onclick="createRoom()">
-      إنشاء غرفة
-    </button>
+<h1>🍿 شاهدوا رزان</h1>
 
-    <input id="roomInput" placeholder="اكتب رمز الغرفة">
+<input
+id="name"
+placeholder="اسمك"
+autocomplete="off">
 
-    <button type="button" onclick="joinRoom()">
-      دخول الغرفة
-    </button>
+<button
+type="button"
+onclick="createRoom()">
+إنشاء غرفة
+</button>
 
-  </div>
+<input
+id="roomInput"
+placeholder="اكتب رمز الغرفة"
+autocomplete="off">
 
-
-  <!-- الغرفة -->
-  <div id="roomPage" class="card">
-
-    <h1>الغرفة</h1>
-
-    <p>
-      رمز الغرفة:
-      <span id="roomCode" class="code"></span>
-    </p>
-
-    <!-- Netflix -->
-    <input
-      id="netflixUrl"
-      placeholder="الصق رابط الفيلم أو الحلقة من Netflix"
-    >
-
-    <button
-      type="button"
-      class="netflix"
-      onclick="openNetflixTogether()"
-    >
-      ▶ فتح Netflix للجميع
-    </button>
-
-    <p class="note">
-      الصق رابط Netflix ثم اضغط الزر لإرساله لأعضاء الغرفة.
-    </p>
-
-
-    <!-- الفيديو المباشر -->
-    <input
-      id="videoUrl"
-      placeholder="رابط فيديو مباشر"
-    >
-
-    <button
-      type="button"
-      onclick="loadVideo()"
-    >
-      تشغيل الفيديو للجميع
-    </button>
-
-    <video
-      id="video"
-      controls
-      playsinline
-    ></video>
-
-
-    <!-- الدردشة -->
-    <div id="messages"></div>
-
-    <input
-      id="messageInput"
-      placeholder="اكتب رسالة..."
-      autocomplete="off"
-    >
-
-    <button
-      type="button"
-      onclick="sendMessage()"
-    >
-      إرسال
-    </button>
-
-  </div>
+<button
+type="button"
+onclick="joinRoom()">
+دخول الغرفة
+</button>
 
 </div>
 
 
+
+<!-- الغرفة -->
+
+<div id="roomPage" class="card">
+
+<h1>الغرفة</h1>
+
+<p>
+رمز الغرفة:
+<span
+id="roomCode"
+class="code">
+</span>
+</p>
+
+
+<!-- Netflix -->
+
+<input
+id="netflixUrl"
+placeholder="الصق رابط الفيلم أو الحلقة من Netflix">
+
+<button
+type="button"
+class="netflix"
+onclick="openNetflixTogether()">
+
+▶ فتح Netflix للجميع
+
+</button>
+
+<p class="note">
+الصق رابط Netflix ثم اضغط الزر لإرساله لأعضاء الغرفة.
+</p>
+
+
+
+<!-- الفيديو -->
+
+<input
+id="videoUrl"
+placeholder="رابط فيديو مباشر">
+
+<button
+type="button"
+onclick="loadVideo()">
+
+تشغيل الفيديو للجميع
+
+</button>
+
+<video
+id="video"
+controls
+playsinline>
+</video>
+
+
+
+<!-- الدردشة -->
+
+<div id="messages"></div>
+
+<input
+id="messageInput"
+placeholder="اكتب رسالة..."
+autocomplete="off">
+
+<button
+type="button"
+onclick="sendMessage()">
+
+إرسال
+
+</button>
+
+
+</div>
+
+</div>
+
+
+
 <script src="/socket.io/socket.io.js"></script>
+
 
 <script>
 
@@ -221,369 +277,533 @@ let myName = "";
 let receivingSync = false;
 
 const video =
-  document.getElementById("video");
+document.getElementById("video");
 
 const messages =
-  document.getElementById("messages");
+document.getElementById("messages");
 
 const messageInput =
-  document.getElementById("messageInput");
+document.getElementById("messageInput");
 
 
-// إنشاء رمز غرفة
+
+/* إنشاء رمز غرفة */
+
 function randomRoom(){
 
-  const chars =
-    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const chars =
+"ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-  let code = "";
+let code = "";
 
-  for(let i = 0; i < 6; i++){
-    code += chars[
-      Math.floor(Math.random() * chars.length)
-    ];
-  }
+for(let i = 0; i < 6; i++){
 
-  return code;
+code +=
+chars[
+Math.floor(
+Math.random() * chars.length
+)
+];
+
+}
+
+return code;
+
 }
 
 
-// إنشاء غرفة
+
+/* إنشاء غرفة */
+
 function createRoom(){
 
-  myName =
-    document.getElementById("name")
-    .value
-    .trim();
+myName =
+document
+.getElementById("name")
+.value
+.trim();
 
-  if(!myName){
-    alert("اكتب اسمك");
-    return;
-  }
+if(!myName){
 
-  currentRoom = randomRoom();
+alert("اكتب اسمك");
 
-  enterRoom();
+return;
+
+}
+
+currentRoom =
+randomRoom();
+
+enterRoom();
+
 }
 
 
-// دخول غرفة
+
+/* دخول الغرفة */
+
 function joinRoom(){
 
-  myName =
-    document.getElementById("name")
-    .value
-    .trim();
+myName =
+document
+.getElementById("name")
+.value
+.trim();
 
-  currentRoom =
-    document.getElementById("roomInput")
-    .value
-    .trim()
-    .toUpperCase();
+currentRoom =
+document
+.getElementById("roomInput")
+.value
+.trim()
+.toUpperCase();
 
-  if(!myName){
-    alert("اكتب اسمك");
-    return;
-  }
+if(!myName){
 
-  if(!currentRoom){
-    alert("اكتب رمز الغرفة");
-    return;
-  }
+alert("اكتب اسمك");
 
-  enterRoom();
+return;
+
+}
+
+if(!currentRoom){
+
+alert("اكتب رمز الغرفة");
+
+return;
+
+}
+
+enterRoom();
+
 }
 
 
-// فتح صفحة الغرفة
+
+/* فتح الغرفة */
+
 function enterRoom(){
 
-  document.getElementById("homePage")
-    .style.display = "none";
+document
+.getElementById("homePage")
+.style.display =
+"none";
 
-  document.getElementById("roomPage")
-    .style.display = "block";
+document
+.getElementById("roomPage")
+.style.display =
+"block";
 
-  document.getElementById("roomCode")
-    .textContent = currentRoom;
+document
+.getElementById("roomCode")
+.textContent =
+currentRoom;
 
-  socket.emit("join", {
-    room: currentRoom,
-    name: myName
-  });
+socket.emit(
+"join",
+{
+room:currentRoom,
+name:myName
+}
+);
+
 }
 
 
-// إضافة رسالة إلى الشاشة
-function addMessage(name, text, mine = false){
 
-  const div =
-    document.createElement("div");
+/* إضافة رسالة */
 
-  div.className =
-    mine ? "msg myMsg" : "msg";
+function addMessage(
+name,
+text,
+mine = false
+){
 
-  div.textContent =
-    name + ": " + text;
+const div =
+document.createElement("div");
 
-  messages.appendChild(div);
+div.className =
+mine
+? "msg myMsg"
+: "msg";
 
-  messages.scrollTop =
-    messages.scrollHeight;
+div.textContent =
+name + ": " + text;
+
+messages.appendChild(div);
+
+messages.scrollTop =
+messages.scrollHeight;
+
 }
 
 
-// إرسال رسالة
+
+/* إرسال رسالة */
+
 function sendMessage(){
 
-  const text =
-    messageInput.value.trim();
+const text =
+messageInput
+.value
+.trim();
 
-  if(!text){
-    return;
-  }
+if(!text){
+return;
+}
 
-  // تظهر عندي فورًا
-  addMessage(myName, text, true);
+addMessage(
+myName,
+text,
+true
+);
 
-  // إرسالها لباقي أعضاء الغرفة
-  socket.emit("chat", text);
+socket.emit(
+"chat",
+text
+);
 
-  messageInput.value = "";
+messageInput.value = "";
 
-  messageInput.focus();
+messageInput.focus();
+
 }
 
 
-// الضغط على Enter يرسل
+
+/* إرسال بالإنتر */
+
 messageInput.addEventListener(
-  "keydown",
-  function(event){
+"keydown",
+function(event){
 
-    if(event.key === "Enter"){
-      event.preventDefault();
-      sendMessage();
-    }
+if(event.key === "Enter"){
 
-  }
+event.preventDefault();
+
+sendMessage();
+
+}
+
+}
 );
 
 
-// استقبال الرسائل
-socket.on("chat", (data)=>{
 
-  // السيرفر يرجع الرسالة للمرسل أيضًا
-  // لذلك لا نكرر رسالتي على الشاشة
-  if(data.name === myName){
-    return;
-  }
+/* استقبال الدردشة */
 
-  addMessage(
-    data.name || "زائر",
-    data.text || "",
-    false
-  );
+socket.on(
+"chat",
+(data)=>{
 
-});
+if(
+data.name === myName
+){
+return;
+}
 
+addMessage(
+data.name || "زائر",
+data.text || "",
+false
+);
 
-// رسائل الدخول والخروج
-socket.on("system", (text)=>{
-
-  const div =
-    document.createElement("div");
-
-  div.className =
-    "msg systemMsg";
-
-  div.textContent =
-    "• " + text;
-
-  messages.appendChild(div);
-
-  messages.scrollTop =
-    messages.scrollHeight;
-
-});
+}
+);
 
 
-// Netflix
+
+/* رسائل النظام */
+
+socket.on(
+"system",
+(text)=>{
+
+const div =
+document.createElement("div");
+
+div.className =
+"msg systemMsg";
+
+div.textContent =
+"• " + text;
+
+messages.appendChild(div);
+
+messages.scrollTop =
+messages.scrollHeight;
+
+}
+);
+
+
+
+/* Netflix */
+
 function openNetflixTogether(){
 
-  let url =
-    document.getElementById("netflixUrl")
-    .value
-    .trim();
+let url =
+document
+.getElementById("netflixUrl")
+.value
+.trim();
 
-  if(!url){
-    url = "https://www.netflix.com/";
-  }
+if(!url){
 
-  if(
-    !url.startsWith("https://www.netflix.com") &&
-    !url.startsWith("https://netflix.com")
-  ){
-    alert("الصق رابط Netflix صحيح");
-    return;
-  }
+url =
+"https://www.netflix.com/";
 
-  socket.emit("netflix", url);
+}
 
-  window.open(url, "_blank");
+if(
+!url.startsWith(
+"https://www.netflix.com"
+)
+&&
+!url.startsWith(
+"https://netflix.com"
+)
+){
+
+alert(
+"الصق رابط Netflix صحيح"
+);
+
+return;
+
+}
+
+socket.emit(
+"netflix",
+url
+);
+
+window.open(
+url,
+"_blank"
+);
+
 }
 
 
-// استقبال رابط Netflix
-socket.on("netflix", (url)=>{
 
-  const openIt = confirm(
-    "🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟"
-  );
+/* استقبال Netflix */
 
-  if(openIt){
-    window.open(url, "_blank");
-  }
+socket.on(
+"netflix",
+(url)=>{
 
-});
+const openIt =
+confirm(
+"🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟"
+);
+
+if(openIt){
+
+window.open(
+url,
+"_blank"
+);
+
+}
+
+}
+);
 
 
-// تشغيل فيديو مباشر
+
+/* فيديو مباشر */
+
 function loadVideo(){
 
-  const url =
-    document.getElementById("videoUrl")
-    .value
-    .trim();
+const url =
+document
+.getElementById("videoUrl")
+.value
+.trim();
 
-  if(!url){
-    return;
-  }
+if(!url){
+return;
+}
 
-  socket.emit("video", url);
+socket.emit(
+"video",
+url
+);
+
 }
 
 
-// استقبال الفيديو
-socket.on("video", (url)=>{
 
-  video.src = url;
+/* استقبال الفيديو */
 
-  video.load();
+socket.on(
+"video",
+(url)=>{
 
-});
+video.src = url;
+
+video.load();
+
+}
+);
 
 
-// إرسال حالة الفيديو
+
+/* مزامنة الفيديو */
+
 function sendSync(){
 
-  if(receivingSync){
-    return;
-  }
+if(receivingSync){
+return;
+}
 
-  socket.emit("sync", {
-    time: video.currentTime,
-    playing: !video.paused
-  });
+socket.emit(
+"sync",
+{
+time:video.currentTime,
+playing:!video.paused
+}
+);
 
 }
 
+
 video.addEventListener(
-  "play",
-  sendSync
+"play",
+sendSync
 );
 
 video.addEventListener(
-  "pause",
-  sendSync
+"pause",
+sendSync
 );
 
 video.addEventListener(
-  "seeked",
-  sendSync
+"seeked",
+sendSync
 );
 
 
-// استقبال المزامنة
-socket.on("sync", async(data)=>{
 
-  receivingSync = true;
+/* استقبال المزامنة */
 
-  if(
-    Math.abs(
-      video.currentTime - data.time
-    ) > 1
-  ){
-    video.currentTime = data.time;
-  }
+socket.on(
+"sync",
+async(data)=>{
 
-  if(data.playing){
+receivingSync = true;
 
-    try{
-      await video.play();
-    }catch(e){}
+if(
+Math.abs(
+video.currentTime -
+data.time
+) > 1
+){
 
-  }else{
+video.currentTime =
+data.time;
 
-    video.pause();
+}
 
-  }
+if(data.playing){
 
-  setTimeout(()=>{
-    receivingSync = false;
-  },300);
+try{
 
-});
+await video.play();
 
+}catch(e){}
 
-// حالة الغرفة
-socket.on("room-state", (state)=>{
+}else{
 
-  if(!state){
-    return;
-  }
+video.pause();
 
-  if(state.video){
+}
 
-    video.src = state.video;
+setTimeout(
+()=>{
 
-    video.load();
+receivingSync = false;
 
-    video.addEventListener(
-      "loadedmetadata",
-      async()=>{
+},
+300
+);
 
-        video.currentTime =
-          state.time || 0;
-
-        if(state.playing){
-
-          try{
-            await video.play();
-          }catch(e){}
-
-        }
-
-      },
-      {once:true}
-    );
-
-  }
-
-});
+}
+);
 
 
-// حالة الاتصال
-socket.on("connect", ()=>{
 
-  console.log("Connected");
+/* حالة الغرفة */
 
-});
+socket.on(
+"room-state",
+(state)=>{
 
-socket.on("disconnect", ()=>{
+if(!state){
+return;
+}
 
-  console.log("Disconnected");
+if(state.video){
 
-});
+video.src =
+state.video;
+
+video.load();
+
+video.addEventListener(
+"loadedmetadata",
+async()=>{
+
+video.currentTime =
+state.time || 0;
+
+if(state.playing){
+
+try{
+
+await video.play();
+
+}catch(e){}
+
+}
+
+},
+{
+once:true
+}
+);
+
+}
+
+}
+);
+
+
+
+/* الاتصال */
+
+socket.on(
+"connect",
+()=>{
+
+console.log(
+"Connected"
+);
+
+}
+);
+
+
+socket.on(
+"disconnect",
+()=>{
+
+console.log(
+"Disconnected"
+);
+
+}
+);
 
 </script>
 
