@@ -1,97 +1,88 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>رزان</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رزان</title>
 
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0b12;
-      color: white;
-      min-height: 100vh;
-    }
-
-    header {
-      padding: 20px;
-      text-align: center;
-      background: #151522;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    .card {
-      background: #181824;
-      padding: 20px;
-      border-radius: 18px;
-      margin-bottom: 18px;
-    }
-
-    h2 { margin-top: 0; }
-
-    input {
-      width: 100%;
-      padding: 14px;
-      margin: 7px 0;
-      border: 0;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border: 0;
-      border-radius: 10px;
-      background: #6c5cff;
-      color: white;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    #room {
-      display: none;
-    }
-
-    video {
-      width: 100%;
-      background: black;
-      border-radius: 12px;
-      margin-top: 15px;
-    }
-
-    #messages {
-      height: 180px;
-      overflow-y: auto;
-      background: #0e0e16;
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
-
-    .msg {
-      padding: 7px;
-      border-bottom: 1px solid #252535;
-    }
-
-    .roomCode {
-      color: #9c91ff;
-      font-size: 22px;
-      font-weight: bold;
-    }
-  </style>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#08080f;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+header{
+  background:#141422;
+  text-align:center;
+  padding:25px;
+  font-size:30px;
+  font-weight:bold;
+}
+.container{
+  max-width:600px;
+  margin:30px auto;
+  padding:20px;
+}
+.card{
+  background:#151520;
+  padding:25px;
+  border-radius:20px;
+}
+h1{text-align:center}
+input{
+  width:100%;
+  padding:18px;
+  margin:8px 0;
+  border:0;
+  border-radius:14px;
+  font-size:18px;
+}
+button{
+  width:100%;
+  padding:17px;
+  margin:8px 0;
+  border:0;
+  border-radius:14px;
+  background:#6557f5;
+  color:white;
+  font-size:19px;
+  font-weight:bold;
+}
+.netflix{
+  background:#e50914;
+}
+video{
+  width:100%;
+  background:black;
+  border-radius:16px;
+  margin-top:15px;
+}
+#roomPage{display:none}
+#messages{
+  height:180px;
+  overflow-y:auto;
+  background:#0d0d16;
+  border-radius:14px;
+  padding:12px;
+  margin-top:15px;
+}
+.msg{
+  padding:7px;
+  border-bottom:1px solid #222;
+}
+.code{
+  color:#9b8cff;
+  font-size:25px;
+  font-weight:bold;
+}
+.note{
+  font-size:13px;
+  color:#aaa;
+  text-align:center;
+}
+</style>
 </head>
 
 <body>
@@ -100,156 +91,205 @@
 
 <div class="container">
 
-  <div id="home" class="card">
-    <h2>شاهدوا رزان 🍿</h2>
+<div id="homePage" class="card">
+  <h1>🍿 شاهدوا رزان</h1>
 
-    <input id="name" placeholder="اسمك">
+  <input id="name" placeholder="اسمك">
 
-    <button onclick="createRoom()">إنشاء غرفة</button>
+  <button onclick="createRoom()">إنشاء غرفة</button>
 
-    <input id="roomInput" placeholder="اكتب رمز الغرفة">
+  <input id="roomInput" placeholder="اكتب رمز الغرفة">
 
-    <button onclick="joinRoom()">دخول الغرفة</button>
-  </div>
+  <button onclick="joinRoom()">دخول الغرفة</button>
+</div>
 
-  <div id="room" class="card">
-    <h2>الغرفة</h2>
+<div id="roomPage" class="card">
 
-    <p>
-      رمز الغرفة:
-      <span id="roomCode" class="roomCode"></span>
-    </p>
+  <h1>الغرفة</h1>
 
-    <input id="videoUrl" placeholder="رابط فيديو مباشر">
+  <p>رمز الغرفة:
+    <span id="roomCode" class="code"></span>
+  </p>
 
-    <button onclick="loadVideo()">تشغيل الفيديو</button>
+  <button class="netflix" onclick="openNetflix()">
+    ▶ Netflix
+  </button>
 
-    <video id="video" controls playsinline></video>
+  <p class="note">
+    يفتح Netflix في نافذة منفصلة، ورزان تبقى للمزامنة والدردشة.
+  </p>
 
-    <div id="messages"></div>
+  <input id="videoUrl" placeholder="رابط فيديو مباشر">
 
-    <input id="message" placeholder="اكتب رسالة...">
+  <button onclick="loadVideo()">تشغيل الفيديو</button>
 
-    <button onclick="sendMessage()">إرسال</button>
-  </div>
+  <video id="video" controls playsinline></video>
+
+  <div id="messages"></div>
+
+  <input id="messageInput" placeholder="اكتب رسالة...">
+
+  <button onclick="sendMessage()">إرسال</button>
+
+</div>
 
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-  const socket = io();
+const socket = io();
 
-  let currentRoom
-  function createRoom() {
-    username =
-      document.getElementById("name").value.trim() || "ضيف";
+let currentRoom = "";
+let myName = "";
+let receivingSync = false;
 
-    currentRoom = Math.random()
-      .toString(36)
-      .substring(2, 8)
-      .toUpperCase();
+const video = document.getElementById("video");
+const messages = document.getElementById("messages");
 
-    enterRoom();
+function randomRoom(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+
+  for(let i=0;i<6;i++){
+    code += chars[Math.floor(Math.random()*chars.length)];
   }
 
-  function joinRoom() {
-    username =
-      document.getElementById("name").value.trim() || "ضيف";
+  return code;
+}
 
-    currentRoom =
-      document.getElementById("roomInput")
-      .value.trim()
-      .toUpperCase();
+function createRoom(){
+  myName = document.getElementById("name").value.trim();
 
-    if (!currentRoom) {
-      alert("اكتب رمز الغرفة");
-      return;
-    }
-
-    enterRoom();
+  if(!myName){
+    alert("اكتب اسمك");
+    return;
   }
 
-  function enterRoom() {
-    socket.emit("join-room", currentRoom);
+  currentRoom = randomRoom();
+  enterRoom();
+}
 
-    document.getElementById("home").style.display = "none";
-    document.getElementById("room").style.display = "block";
-    document.getElementById("roomCode").textContent = currentRoom;
+function joinRoom(){
+  myName = document.getElementById("name").value.trim();
+  currentRoom =
+    document.getElementById("roomInput").value.trim().toUpperCase();
+
+  if(!myName){
+    alert("اكتب اسمك");
+    return;
   }
 
-  function loadVideo() {
-    const url =
-      document.getElementById("videoUrl").value.trim();
-
-    if (!url) return;
-
-    document.getElementById("video").src = url;
-
-socket.emit("video", url);
-  
-
-  function sendMessage() {
-    const input = document.getElementById("message");
-    const text = input.value.trim();
-
-    if (!text) return;
-
-    socket.emit("chat-message", {
-      room: currentRoom,
-      name: username,
-      text: text
-    });
-
-    input.value = "";
+  if(!currentRoom){
+    alert("اكتب رمز الغرفة");
+    return;
   }
 
-  socket.on("chat-message", data => {
-    const div = document.createElement("div");
-    div.className = "msg";
-    div.textContent = data.name + ": " + data.text;
+  enterRoom();
+}
 
-    document.getElementById("messages").appendChild(div);
+function enterRoom(){
+  document.getElementById("homePage").style.display = "none";
+  document.getElementById("roomPage").style.display = "block";
+  document.getElementById("roomCode").textContent = currentRoom;
+
+  socket.emit("join", {
+    room: currentRoom,
+    name: myName
   });
+}
 
-  socket.on("video-change", url => {
-    document.getElementById("video").src = url;
+function openNetflix(){
+  window.open("https://www.netflix.com/", "_blank");
+}
+
+function loadVideo(){
+  const url = document.getElementById("videoUrl").value.trim();
+
+  if(!url) return;
+
+  socket.emit("video", url);
+}
+
+function sendSync(){
+  if(receivingSync) return;
+
+  socket.emit("sync", {
+    time: video.currentTime,
+    playing: !video.paused
   });
+}
 
-  const video = document.getElementById("video");
+video.addEventListener("play", sendSync);
+video.addEventListener("pause", sendSync);
+video.addEventListener("seeked", sendSync);
 
-  video.addEventListener("play", () => {
-    if (currentRoom) {
-      socket.emit("video-control", {
-        room: currentRoom,
-        action: "play",
-        time: video.currentTime
-      });
-    }
-  });
+function sendMessage(){
+  const input = document.getElementById("messageInput");
+  const text = input.value.trim();
 
-  video.addEventListener("pause", () => {
-    if (currentRoom) {
-      socket.emit("video-control", {
-        room: currentRoom,
-        action: "pause",
-        time: video.currentTime
-      });
-    }
-  });
+  if(!text) return;
 
-  socket.on("video-control", data => {
-    video.currentTime = data.time;
+  socket.emit("chat", text);
+  input.value = "";
+}
 
-    if (data.action === "play") {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  });
-  socket.on("video", (url) => {
+socket.on("video", (url)=>{
   video.src = url;
   video.load();
+});
+
+socket.on("sync", async(data)=>{
+  receivingSync = true;
+
+  if(Math.abs(video.currentTime - data.time) > 1){
+    video.currentTime = data.time;
+  }
+
+  if(data.playing){
+    try{
+      await video.play();
+    }catch(e){}
+  }else{
+    video.pause();
+  }
+
+  setTimeout(()=>{
+    receivingSync = false;
+  },300);
+});
+
+socket.on("room-state", (state)=>{
+  if(state.video){
+    video.src = state.video;
+    video.load();
+
+    video.addEventListener("loadedmetadata", async()=>{
+      video.currentTime = state.time || 0;
+
+      if(state.playing){
+        try{
+          await video.play();
+        }catch(e){}
+      }
+    },{once:true});
+  }
+});
+
+socket.on("chat", (data)=>{
+  const div = document.createElement("div");
+  div.className = "msg";
+  div.textContent = data.name + ": " + data.text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+});
+
+socket.on("system", (text)=>{
+  const div = document.createElement("div");
+  div.className = "msg";
+  div.textContent = "• " + text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
 });
 </script>
 
