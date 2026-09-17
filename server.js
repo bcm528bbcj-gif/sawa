@@ -26,7 +26,9 @@ io.on("connection", (socket) => {
         video: "",
         youtube: "",
         time: 0,
-        playing: false
+        playing: false,
+        youtubeTime: 0,
+        youtubePlaying: false
       });
     }
 
@@ -39,7 +41,10 @@ io.on("connection", (socket) => {
   });
 
 
-  // الدردشة
+  /* =====================
+     CHAT
+  ===================== */
+
   socket.on("chat", (text) => {
     const room = socket.data.room;
     if (!room) return;
@@ -54,39 +59,33 @@ io.on("connection", (socket) => {
   });
 
 
-  // فيديو مباشر MP4
+  /* =====================
+     MP4
+  ===================== */
+
   socket.on("video", (url) => {
     const room = socket.data.room;
+
     if (!room || !rooms.has(room)) return;
 
     const state = rooms.get(room);
 
     state.video = String(url || "").slice(0, 2000);
     state.youtube = "";
+
     state.time = 0;
     state.playing = false;
+
+    state.youtubeTime = 0;
+    state.youtubePlaying = false;
 
     io.to(room).emit("video", state.video);
   });
 
 
-  // YouTube
-  socket.on("youtube", (url) => {
-    const room = socket.data.room;
-    if (!room || !rooms.has(room)) return;
-
-    const state = rooms.get(room);
-
-    state.youtube = String(url || "").slice(0, 2000);
-    state.video = "";
-
-    io.to(room).emit("youtube", state.youtube);
-  });
-
-
-  // مزامنة الفيديو المباشر
   socket.on("sync", (data) => {
     const room = socket.data.room;
+
     if (!room || !rooms.has(room)) return;
 
     const state = rooms.get(room);
@@ -101,18 +100,75 @@ io.on("connection", (socket) => {
   });
 
 
-  // Netflix
+  /* =====================
+     YOUTUBE
+  ===================== */
+
+  socket.on("youtube", (url) => {
+    const room = socket.data.room;
+
+    if (!room || !rooms.has(room)) return;
+
+    const state = rooms.get(room);
+
+    state.youtube = String(url || "").slice(0, 2000);
+    state.video = "";
+
+    state.youtubeTime = 0;
+    state.youtubePlaying = false;
+
+    io.to(room).emit("youtube", state.youtube);
+  });
+
+
+  /*
+    مزامنة YouTube
+    تشغيل / إيقاف / تقديم
+  */
+
+  socket.on("youtube-sync", (data) => {
+    const room = socket.data.room;
+
+    if (!room || !rooms.has(room)) return;
+
+    const state = rooms.get(room);
+
+    state.youtubeTime =
+      Math.max(0, Number(data.time) || 0);
+
+    state.youtubePlaying =
+      !!data.playing;
+
+    socket.to(room).emit("youtube-sync", {
+      time: state.youtubeTime,
+      playing: state.youtubePlaying
+    });
+  });
+
+
+  /* =====================
+     NETFLIX
+  ===================== */
+
   socket.on("netflix", (url) => {
     const room = socket.data.room;
+
     if (!room) return;
 
     const netflixUrl = String(
       url || "https://www.netflix.com/"
     ).slice(0, 2000);
 
-    socket.to(room).emit("netflix", netflixUrl);
+    socket.to(room).emit(
+      "netflix",
+      netflixUrl
+    );
   });
 
+
+  /* =====================
+     DISCONNECT
+  ===================== */
 
   socket.on("disconnect", () => {
     const room = socket.data.room;
@@ -128,8 +184,11 @@ io.on("connection", (socket) => {
 });
 
 
-const PORT = process.env.PORT || 3000;
+const PORT =
+process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-  console.log(`Razan running on port ${PORT}`);
+  console.log(
+    `Razan running on port ${PORT}`
+  );
 });
