@@ -31,14 +31,30 @@ io.on("connection", (socket) => {
 
     socket.emit("room-state", rooms.get(room));
 
-    io.to(room).emit(
-      "system",
+    io.to(room).emit("system",
       `${socket.data.name} دخل الغرفة`
     );
   });
 
 
-  // الفيديو المباشر
+  // الدردشة
+  socket.on("chat", (text) => {
+    const room = socket.data.room;
+
+    if (!room) return;
+
+    const message = String(text || "").trim();
+
+    if (!message) return;
+
+    io.in(room).emit("chat", {
+      name: socket.data.name || "زائر",
+      text: message.slice(0, 500)
+    });
+  });
+
+
+  // الفيديو
   socket.on("video", (url) => {
     const room = socket.data.room;
 
@@ -50,7 +66,7 @@ io.on("connection", (socket) => {
     state.time = 0;
     state.playing = false;
 
-    io.to(room).emit("video", state.video);
+    io.in(room).emit("video", state.video);
   });
 
 
@@ -72,7 +88,7 @@ io.on("connection", (socket) => {
   });
 
 
-  // إرسال رابط Netflix لباقي أعضاء الغرفة
+  // Netflix
   socket.on("netflix", (url) => {
     const room = socket.data.room;
 
@@ -83,19 +99,6 @@ io.on("connection", (socket) => {
     ).slice(0, 2000);
 
     socket.to(room).emit("netflix", netflixUrl);
-  });
-
-
-  // الدردشة
-  socket.on("chat", (text) => {
-    const room = socket.data.room;
-
-    if (!room) return;
-
-    io.to(room).emit("chat", {
-      name: socket.data.name || "زائر",
-      text: String(text || "").slice(0, 500)
-    });
   });
 
 
