@@ -166,7 +166,7 @@ video{
 </p>
 
 
-<!-- YouTube -->
+<!-- YOUTUBE -->
 
 <input
 id="youtubeUrl"
@@ -190,7 +190,7 @@ allowfullscreen>
 </iframe>
 
 
-<!-- Netflix -->
+<!-- NETFLIX -->
 
 <input
 id="netflixUrl"
@@ -204,7 +204,7 @@ onclick="openNetflixTogether()">
 </button>
 
 
-<!-- فيديو مباشر -->
+<!-- MP4 -->
 
 <input
 id="videoUrl"
@@ -219,7 +219,7 @@ onclick="loadVideo()">
 <video id="video" controls playsinline></video>
 
 
-<!-- الدردشة -->
+<!-- CHAT -->
 
 <div id="messages"></div>
 
@@ -328,29 +328,91 @@ function enterRoom(){
 }
 
 
-/* YOUTUBE */
+/* =========================
+   YOUTUBE
+========================= */
 
-function getYouTubeId(url){
+function getYouTubeId(input){
+
+  if(!input) return null;
+
+  let url = String(input).trim();
+
+  // إزالة مسافات مخفية عند النسخ
+  url = url.replace(/\s+/g,"");
+
+  // إذا الرابط بدون https
+  if(
+    !url.startsWith("http://") &&
+    !url.startsWith("https://")
+  ){
+    url = "https://" + url.replace(/^\/+/, "");
+  }
 
   try{
 
     const parsed = new URL(url);
 
-    if(parsed.hostname.includes("youtu.be")){
-      return parsed.pathname.slice(1).split("/")[0];
+    const host =
+    parsed.hostname
+    .toLowerCase()
+    .replace(/^www\./,"");
+
+    // youtu.be/VIDEO_ID
+    if(host === "youtu.be"){
+
+      const id =
+      parsed.pathname
+      .replace(/^\/+/,"")
+      .split("/")[0];
+
+      return id || null;
     }
 
-    if(parsed.pathname.includes("/shorts/")){
-      return parsed.pathname.split("/shorts/")[1].split("/")[0];
+    // youtube.com
+    if(
+      host === "youtube.com" ||
+      host === "m.youtube.com" ||
+      host === "music.youtube.com"
+    ){
+
+      // youtube.com/watch?v=VIDEO_ID
+      const v =
+      parsed.searchParams.get("v");
+
+      if(v){
+        return v;
+      }
+
+      // youtube.com/shorts/VIDEO_ID
+      if(parsed.pathname.startsWith("/shorts/")){
+
+        return parsed.pathname
+        .split("/shorts/")[1]
+        .split("/")[0];
+      }
+
+      // youtube.com/embed/VIDEO_ID
+      if(parsed.pathname.startsWith("/embed/")){
+
+        return parsed.pathname
+        .split("/embed/")[1]
+        .split("/")[0];
+      }
+
+      // youtube.com/live/VIDEO_ID
+      if(parsed.pathname.startsWith("/live/")){
+
+        return parsed.pathname
+        .split("/live/")[1]
+        .split("/")[0];
+      }
     }
 
-    if(parsed.pathname.includes("/embed/")){
-      return parsed.pathname.split("/embed/")[1].split("/")[0];
-    }
+    return null;
 
-    return parsed.searchParams.get("v");
+  }catch(error){
 
-  }catch(e){
     return null;
   }
 }
@@ -365,7 +427,10 @@ function showYouTube(url){
     return;
   }
 
-  video.pause();
+  try{
+    video.pause();
+  }catch(e){}
+
   video.style.display = "none";
 
   youtubePlayer.style.display = "block";
@@ -373,31 +438,45 @@ function showYouTube(url){
   youtubePlayer.src =
   "https://www.youtube.com/embed/" +
   encodeURIComponent(id) +
-  "?playsinline=1";
+  "?playsinline=1&rel=0";
 }
 
 
 function loadYouTube(){
 
-  const url =
+  let url =
   document.getElementById("youtubeUrl")
   .value.trim();
 
-  if(!getYouTubeId(url)){
+  const id = getYouTubeId(url);
+
+  if(!id){
     alert("الصق رابط YouTube صحيح");
     return;
   }
+
+  // نحوله إلى رابط موحد
+  url =
+  "https://www.youtube.com/watch?v=" +
+  encodeURIComponent(id);
+
+  document.getElementById("youtubeUrl")
+  .value = url;
 
   socket.emit("youtube",url);
 }
 
 
 socket.on("youtube",(url)=>{
+
   showYouTube(url);
+
 });
 
 
-/* NETFLIX */
+/* =========================
+   NETFLIX
+========================= */
 
 function openNetflixTogether(){
 
@@ -426,7 +505,9 @@ function openNetflixTogether(){
 socket.on("netflix",(url)=>{
 
   const openIt =
-  confirm("🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟");
+  confirm(
+    "🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟"
+  );
 
   if(openIt){
     window.open(url,"_blank");
@@ -435,7 +516,9 @@ socket.on("netflix",(url)=>{
 });
 
 
-/* VIDEO */
+/* =========================
+   MP4
+========================= */
 
 function loadVideo(){
 
@@ -482,7 +565,11 @@ socket.on("sync",async(data)=>{
 
   receivingSync = true;
 
-  if(Math.abs(video.currentTime-data.time)>1){
+  if(
+    Math.abs(
+      video.currentTime - data.time
+    ) > 1
+  ){
     video.currentTime = data.time;
   }
 
@@ -493,7 +580,9 @@ socket.on("sync",async(data)=>{
     }catch(e){}
 
   }else{
+
     video.pause();
+
   }
 
   setTimeout(()=>{
@@ -503,7 +592,9 @@ socket.on("sync",async(data)=>{
 });
 
 
-/* CHAT */
+/* =========================
+   CHAT
+========================= */
 
 function addMessage(name,text,mine=false){
 
@@ -542,8 +633,10 @@ messageInput.addEventListener(
 "keydown",
 (event)=>{
 
-  if(event.key==="Enter"){
+  if(event.key === "Enter"){
+
     event.preventDefault();
+
     sendMessage();
   }
 
@@ -552,7 +645,7 @@ messageInput.addEventListener(
 
 socket.on("chat",(data)=>{
 
-  if(data.name===myName) return;
+  if(data.name === myName) return;
 
   addMessage(
     data.name || "زائر",
@@ -578,20 +671,29 @@ socket.on("system",(text)=>{
 });
 
 
-/* ROOM STATE */
+/* =========================
+   ROOM STATE
+========================= */
 
 socket.on("room-state",(state)=>{
 
   if(!state) return;
 
   if(state.youtube){
+
     showYouTube(state.youtube);
+
     return;
   }
 
   if(state.video){
 
+    youtubePlayer.style.display = "none";
+
+    video.style.display = "block";
+
     video.src = state.video;
+
     video.load();
 
     video.addEventListener(
@@ -602,9 +704,11 @@ socket.on("room-state",(state)=>{
       state.time || 0;
 
       if(state.playing){
+
         try{
           await video.play();
         }catch(e){}
+
       }
 
     },
