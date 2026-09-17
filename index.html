@@ -1,1104 +1,501 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>رزان 🎬</title>
 
-<title>رزان</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<link rel="manifest" href="/manifest.json">
-<link rel="icon" href="/icon.svg">
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #08080f;
+      color: white;
+      min-height: 100vh;
+    }
 
-<meta name="theme-color" content="#141422">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="رزان">
+    header {
+      padding: 35px 20px;
+      text-align: center;
+      background: #12111d;
+    }
 
-<style>
-*{box-sizing:border-box}
+    header h1 {
+      margin: 0;
+      font-size: 42px;
+    }
 
-body{
-  margin:0;
-  background:#08080f;
-  color:white;
-  font-family:Arial,sans-serif;
-  min-height:100vh;
-}
+    .container {
+      width: min(900px, 92%);
+      margin: 40px auto;
+    }
 
-header{
-  background:#141422;
-  text-align:center;
-  padding:25px;
-  padding-top:max(25px,env(safe-area-inset-top));
-  font-size:30px;
-  font-weight:bold;
-}
+    .card {
+      background: #15141f;
+      border-radius: 25px;
+      padding: 25px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    }
 
-.container{
-  max-width:600px;
-  margin:30px auto;
-  padding:20px;
-}
+    h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-top: 5px;
+    }
 
-.card{
-  background:#151520;
-  padding:25px;
-  border-radius:20px;
-}
+    input {
+      width: 100%;
+      padding: 18px;
+      margin: 10px 0;
+      border: 0;
+      border-radius: 15px;
+      font-size: 17px;
+      outline: none;
+      text-align: right;
+    }
 
-h1{text-align:center}
+    button {
+      width: 100%;
+      padding: 17px;
+      margin: 8px 0;
+      border: 0;
+      border-radius: 15px;
+      background: #6355ee;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-input{
-  width:100%;
-  padding:18px;
-  margin:8px 0;
-  border:0;
-  border-radius:14px;
-  font-size:18px;
-}
+    button:hover {
+      opacity: .9;
+    }
 
-button{
-  width:100%;
-  padding:17px;
-  margin:8px 0;
-  border:0;
-  border-radius:14px;
-  background:#6557f5;
-  color:white;
-  font-size:19px;
-  font-weight:bold;
-}
+    .youtube-btn {
+      background: #ff3028;
+    }
 
-.netflix{background:#e50914}
-.youtube{background:#ff0000}
+    .room {
+      background: #211f31;
+      padding: 18px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
 
-video{
-  width:100%;
-  background:black;
-  border-radius:16px;
-  margin-top:15px;
-}
+    .code {
+      font-size: 28px;
+      color: #9d8cff;
+      font-weight: bold;
+      letter-spacing: 3px;
+    }
 
-#youtubeBox{
-  display:none;
-  width:100%;
-  aspect-ratio:16/9;
-  margin-top:15px;
-  overflow:hidden;
-  border-radius:16px;
-  background:black;
-}
+    #player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 18px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
 
-#youtubePlayer{
-  width:100%;
-  height:100%;
-}
+    #player iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
 
-#roomPage{display:none}
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
 
-#messages{
-  height:220px;
-  overflow-y:auto;
-  background:#0d0d16;
-  border-radius:14px;
-  padding:12px;
-  margin-top:15px;
-}
+    .controls button {
+      margin: 0;
+    }
 
-.msg{
-  padding:9px;
-  margin-bottom:5px;
-  background:#191925;
-  border-radius:9px;
-}
+    #status {
+      text-align: center;
+      color: #aaa;
+      margin-top: 15px;
+      min-height: 25px;
+    }
 
-.myMsg{background:#312d68}
-
-.systemMsg{
-  color:#aaa;
-  text-align:center;
-  font-size:14px;
-}
-
-.code{
-  color:#9b8cff;
-  font-size:25px;
-  font-weight:bold;
-}
-
-.note{
-  font-size:13px;
-  color:#aaa;
-  text-align:center;
-}
-</style>
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>🎬 رزان</header>
+<header>
+  <h1>رزان 🎬</h1>
+</header>
 
 <div class="container">
 
-<div id="homePage" class="card">
+  <div class="card">
 
-<h1>🍿 شاهدوا رزان</h1>
+    <h2>شاهدوا رزان 🍿</h2>
 
-<input id="name" placeholder="اسمك" autocomplete="off">
+    <div class="room">
+      <div>رمز الغرفة</div>
+      <div class="code" id="roomCode">------</div>
+    </div>
 
-<button type="button" onclick="createRoom()">
-إنشاء غرفة
-</button>
+    <input
+      id="nameInput"
+      type="text"
+      placeholder="اسمك"
+    >
 
-<input id="roomInput" placeholder="اكتب رمز الغرفة" autocomplete="off">
+    <button onclick="createRoom()">
+      إنشاء غرفة
+    </button>
 
-<button type="button" onclick="joinRoom()">
-دخول الغرفة
-</button>
+    <hr style="border-color:#292735;margin:25px 0">
 
-</div>
+    <input
+      id="joinCode"
+      type="text"
+      placeholder="اكتب رمز الغرفة"
+    >
 
+    <button onclick="joinRoom()">
+      دخول الغرفة
+    </button>
 
-<div id="roomPage" class="card">
+    <hr style="border-color:#292735;margin:25px 0">
 
-<h1>الغرفة</h1>
+    <input
+      id="youtubeInput"
+      type="text"
+      placeholder="الصق رابط YouTube هنا"
+    >
 
-<p>
-رمز الغرفة:
-<span id="roomCode" class="code"></span>
-</p>
+    <button class="youtube-btn" onclick="loadYouTube()">
+      ▶ تشغيل YouTube للجميع
+    </button>
 
+    <div id="player"></div>
 
-<input
-id="youtubeUrl"
-placeholder="الصق رابط فيديو YouTube">
+    <div class="controls">
+      <button onclick="playVideo()">▶ تشغيل</button>
+      <button onclick="pauseVideo()">⏸ إيقاف</button>
+      <button onclick="reloadVideo()">🔄 إعادة</button>
+    </div>
 
-<button
-type="button"
-class="youtube"
-onclick="loadYouTube()">
-▶ تشغيل YouTube للجميع
-</button>
+    <div id="status">
+      جاهز
+    </div>
 
-<p class="note">
-تشغيل وإيقاف وتقديم YouTube يتزامن بين أعضاء الغرفة.
-</p>
+  </div>
 
-<div id="youtubeBox">
-  <div id="youtubePlayer"></div>
-</div>
-
-
-<input
-id="netflixUrl"
-placeholder="الصق رابط الفيلم أو الحلقة من Netflix">
-
-<button
-type="button"
-class="netflix"
-onclick="openNetflixTogether()">
-▶ فتح Netflix للجميع
-</button>
-
-
-<input
-id="videoUrl"
-placeholder="رابط فيديو مباشر MP4">
-
-<button
-type="button"
-onclick="loadVideo()">
-تشغيل الفيديو للجميع
-</button>
-
-<video id="video" controls playsinline></video>
-
-
-<div id="messages"></div>
-
-<input
-id="messageInput"
-placeholder="اكتب رسالة..."
-autocomplete="off">
-
-<button
-type="button"
-onclick="sendMessage()">
-إرسال
-</button>
-
-</div>
 </div>
 
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
 
-const socket = io();
+  let socket = null;
 
-let currentRoom = "";
-let myName = "";
+  let room = null;
+  let myName = "";
 
-let receivingSync = false;
-let receivingYouTubeSync = false;
-
-let youtubePlayer = null;
-let youtubeReady = false;
-let pendingYouTubeId = null;
-let pendingYouTubeState = null;
-
-let lastYoutubeState = -1;
-
-const video =
-document.getElementById("video");
-
-const messages =
-document.getElementById("messages");
-
-const messageInput =
-document.getElementById("messageInput");
-
-const youtubeBox =
-document.getElementById("youtubeBox");
+  let currentVideoId = null;
+  let youtubeIframe = null;
 
 
-/* =========================
-   ROOM
-========================= */
+  // استخراج رقم الفيديو من رابط YouTube
+  function getYouTubeId(url) {
 
-function randomRoom(){
+    if (!url) return null;
 
-  const chars =
-  "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    url = url.trim();
 
-  let code = "";
+    let match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/
+    );
 
-  for(let i=0;i<6;i++){
-    code += chars[
-      Math.floor(Math.random()*chars.length)
-    ];
-  }
-
-  return code;
-}
-
-
-function createRoom(){
-
-  myName =
-  document.getElementById("name")
-  .value.trim();
-
-  if(!myName){
-    alert("اكتب اسمك");
-    return;
-  }
-
-  currentRoom = randomRoom();
-
-  enterRoom();
-}
-
-
-function joinRoom(){
-
-  myName =
-  document.getElementById("name")
-  .value.trim();
-
-  currentRoom =
-  document.getElementById("roomInput")
-  .value.trim()
-  .toUpperCase();
-
-  if(!myName){
-    alert("اكتب اسمك");
-    return;
-  }
-
-  if(!currentRoom){
-    alert("اكتب رمز الغرفة");
-    return;
-  }
-
-  enterRoom();
-}
-
-
-function enterRoom(){
-
-  document.getElementById("homePage")
-  .style.display = "none";
-
-  document.getElementById("roomPage")
-  .style.display = "block";
-
-  document.getElementById("roomCode")
-  .textContent = currentRoom;
-
-  socket.emit("join",{
-    room:currentRoom,
-    name:myName
-  });
-}
-
-
-/* =========================
-   YOUTUBE URL
-========================= */
-
-function getYouTubeId(input){
-
-  if(!input) return null;
-
-  let url =
-  String(input)
-  .trim()
-  .replace(/\s+/g,"");
-
-  if(
-    !url.startsWith("http://") &&
-    !url.startsWith("https://")
-  ){
-    url =
-    "https://" +
-    url.replace(/^\/+/,"");
-  }
-
-  try{
-
-    const parsed =
-    new URL(url);
-
-    const host =
-    parsed.hostname
-    .toLowerCase()
-    .replace(/^www\./,"");
-
-    if(host === "youtu.be"){
-
-      return parsed.pathname
-      .replace(/^\/+/,"")
-      .split("/")[0] || null;
-    }
-
-    if(
-      host === "youtube.com" ||
-      host === "m.youtube.com" ||
-      host === "music.youtube.com"
-    ){
-
-      const v =
-      parsed.searchParams.get("v");
-
-      if(v) return v;
-
-      if(
-        parsed.pathname
-        .startsWith("/shorts/")
-      ){
-        return parsed.pathname
-        .split("/shorts/")[1]
-        .split("/")[0];
-      }
-
-      if(
-        parsed.pathname
-        .startsWith("/embed/")
-      ){
-        return parsed.pathname
-        .split("/embed/")[1]
-        .split("/")[0];
-      }
-
-      if(
-        parsed.pathname
-        .startsWith("/live/")
-      ){
-        return parsed.pathname
-        .split("/live/")[1]
-        .split("/")[0];
-      }
+    if (match) {
+      return match[1];
     }
 
     return null;
-
-  }catch(e){
-
-    return null;
   }
-}
 
 
-/* =========================
-   YOUTUBE PLAYER
-========================= */
+  // إنشاء الغرفة
+  function createRoom() {
 
-function onYouTubeIframeAPIReady(){
+    myName =
+      document.getElementById("nameInput").value.trim()
+      || "مستخدم";
 
-  youtubePlayer =
-  new YT.Player("youtubePlayer",{
+    room =
+      Math.random()
+        .toString(36)
+        .substring(2, 8)
+        .toUpperCase();
 
-    width:"100%",
-    height:"100%",
+    document.getElementById("roomCode").textContent = room;
 
-    playerVars:{
-      playsinline:1,
-      rel:0
-    },
+    connectSocket();
 
-    events:{
+    setStatus("تم إنشاء الغرفة ✅");
+  }
 
-      onReady:function(){
 
-        youtubeReady = true;
+  // دخول الغرفة
+  function joinRoom() {
 
-        if(pendingYouTubeId){
+    myName =
+      document.getElementById("nameInput").value.trim()
+      || "مستخدم";
 
-          youtubePlayer
-          .cueVideoById(
-            pendingYouTubeId
-          );
+    const code =
+      document.getElementById("joinCode").value
+      .trim()
+      .toUpperCase();
 
-          pendingYouTubeId = null;
-        }
-
-        if(pendingYouTubeState){
-
-          applyYouTubeSync(
-            pendingYouTubeState
-          );
-
-          pendingYouTubeState = null;
-        }
-      },
-
-      onStateChange:
-      onYouTubeStateChange
+    if (!code) {
+      setStatus("اكتب رمز الغرفة أولاً");
+      return;
     }
 
-  });
-}
+    room = code;
 
+    document.getElementById("roomCode").textContent = room;
 
-function showYouTube(url){
+    connectSocket();
 
-  const id =
-  getYouTubeId(url);
-
-  if(!id){
-    alert(
-      "رابط YouTube غير صحيح"
-    );
-    return;
+    setStatus("تم الدخول للغرفة ✅");
   }
 
-  try{
-    video.pause();
-  }catch(e){}
 
-  video.style.display =
-  "none";
+  // الاتصال بالسيرفر
+  function connectSocket() {
 
-  youtubeBox.style.display =
-  "block";
+    if (socket) return;
 
-  if(
-    youtubeReady &&
-    youtubePlayer
-  ){
+    socket = io();
 
-    receivingYouTubeSync = true;
+    socket.on("connect", function() {
 
-    youtubePlayer
-    .cueVideoById(id);
+      setStatus("متصل بالسيرفر 🟢");
 
-    setTimeout(()=>{
-      receivingYouTubeSync = false;
-    },800);
+      socket.emit("join-room", {
+        room: room,
+        name: myName
+      });
 
-  }else{
-
-    pendingYouTubeId = id;
-  }
-}
+    });
 
 
-function loadYouTube(){
+    // استقبال فيديو من صاحب الغرفة
+    socket.on("youtube-load", function(data) {
 
-  let url =
-  document.getElementById(
-    "youtubeUrl"
-  ).value.trim();
+      if (!data || !data.videoId) return;
 
-  const id =
-  getYouTubeId(url);
+      currentVideoId = data.videoId;
 
-  if(!id){
+      showVideo(currentVideoId);
 
-    alert(
-      "الصق رابط YouTube صحيح"
-    );
+      setStatus("تم تحميل الفيديو للجميع 🎬");
 
-    return;
-  }
-
-  url =
-  "https://www.youtube.com/watch?v=" +
-  encodeURIComponent(id);
-
-  document.getElementById(
-    "youtubeUrl"
-  ).value = url;
-
-  socket.emit(
-    "youtube",
-    url
-  );
-}
+    });
 
 
-socket.on(
-"youtube",
-(url)=>{
+    socket.on("youtube-play", function() {
 
-  showYouTube(url);
+      playVideoLocal();
 
-});
+    });
 
 
-/* =========================
-   YOUTUBE SYNC
-========================= */
+    socket.on("youtube-pause", function() {
 
-function sendYouTubeSync(){
+      pauseVideoLocal();
 
-  if(
-    receivingYouTubeSync ||
-    !youtubeReady ||
-    !youtubePlayer
-  ){
-    return;
+    });
+
+
+    socket.on("youtube-reload", function() {
+
+      reloadVideoLocal();
+
+    });
+
   }
 
-  let time = 0;
-  let state = -1;
 
-  try{
+  // تشغيل فيديو YouTube
+  function loadYouTube() {
 
-    time =
-    youtubePlayer
-    .getCurrentTime() || 0;
+    const input =
+      document.getElementById("youtubeInput").value;
 
-    state =
-    youtubePlayer
-    .getPlayerState();
+    const videoId = getYouTubeId(input);
 
-  }catch(e){
-    return;
-  }
+    if (!videoId) {
 
-  const playing =
-  state === YT.PlayerState.PLAYING;
+      setStatus("❌ رابط YouTube غير صحيح");
 
-  socket.emit(
-    "youtube-sync",
-    {
-      time:time,
-      playing:playing
-    }
-  );
-}
-
-
-function onYouTubeStateChange(event){
-
-  if(receivingYouTubeSync){
-    return;
-  }
-
-  const state =
-  event.data;
-
-  /*
-    نتعامل مع التشغيل والإيقاف فقط.
-    ونتجنب إرسال نفس الحالة
-    بشكل متكرر.
-  */
-
-  if(
-    state === YT.PlayerState.PLAYING ||
-    state === YT.PlayerState.PAUSED
-  ){
-
-    if(
-      state !== lastYoutubeState
-    ){
-
-      lastYoutubeState = state;
-
-      sendYouTubeSync();
-    }
-  }
-}
-
-
-/*
-  إرسال تحديث أثناء التشغيل.
-  هذا يساعد في مزامنة التقديم
-  والرجوع في الفيديو.
-*/
-
-setInterval(()=>{
-
-  if(
-    !youtubeReady ||
-    !youtubePlayer ||
-    receivingYouTubeSync
-  ){
-    return;
-  }
-
-  try{
-
-    const state =
-    youtubePlayer
-    .getPlayerState();
-
-    if(
-      state ===
-      YT.PlayerState.PLAYING
-    ){
-      sendYouTubeSync();
+      return;
     }
 
-  }catch(e){}
+    currentVideoId = videoId;
 
-},3000);
+    showVideo(videoId);
+
+    setStatus("تم تحميل الفيديو 🎬");
 
 
-function applyYouTubeSync(data){
+    if (socket && room) {
 
-  if(
-    !youtubeReady ||
-    !youtubePlayer
-  ){
+      socket.emit("youtube-load", {
 
-    pendingYouTubeState = data;
+        room: room,
+        videoId: videoId
 
-    return;
-  }
+      });
 
-  receivingYouTubeSync = true;
-
-  const time =
-  Math.max(
-    0,
-    Number(data.time) || 0
-  );
-
-  try{
-
-    const current =
-    youtubePlayer
-    .getCurrentTime() || 0;
-
-    if(
-      Math.abs(current-time) > 1
-    ){
-
-      youtubePlayer
-      .seekTo(time,true);
     }
 
-    if(data.playing){
-
-      youtubePlayer
-      .playVideo();
-
-    }else{
-
-      youtubePlayer
-      .pauseVideo();
-    }
-
-  }catch(e){}
-
-  setTimeout(()=>{
-
-    receivingYouTubeSync = false;
-
-  },800);
-}
-
-
-socket.on(
-"youtube-sync",
-(data)=>{
-
-  applyYouTubeSync(data);
-
-});
-
-
-/* =========================
-   NETFLIX
-========================= */
-
-function openNetflixTogether(){
-
-  let url =
-  document.getElementById(
-    "netflixUrl"
-  ).value.trim();
-
-  if(!url){
-
-    url =
-    "https://www.netflix.com/";
   }
 
-  if(
-    !url.startsWith(
-      "https://www.netflix.com"
-    ) &&
-    !url.startsWith(
-      "https://netflix.com"
-    )
-  ){
 
-    alert(
-      "الصق رابط Netflix صحيح"
+  // إظهار الفيديو
+  function showVideo(videoId) {
+
+    const player =
+      document.getElementById("player");
+
+    player.innerHTML = "";
+
+    youtubeIframe =
+      document.createElement("iframe");
+
+    youtubeIframe.src =
+      "https://www.youtube.com/embed/"
+      + videoId
+      + "?autoplay=1&enablejsapi=1";
+
+    youtubeIframe.allow =
+      "autoplay; encrypted-media; picture-in-picture";
+
+    youtubeIframe.allowFullscreen = true;
+
+    player.appendChild(youtubeIframe);
+
+  }
+
+
+  // إرسال أمر تشغيل
+  function playVideo() {
+
+    playVideoLocal();
+
+    if (socket && room) {
+
+      socket.emit("youtube-play", {
+        room: room
+      });
+
+    }
+
+  }
+
+
+  // تشغيل محلي
+  function playVideoLocal() {
+
+    if (!youtubeIframe) return;
+
+    youtubeIframe.contentWindow.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: "playVideo",
+        args: []
+      }),
+      "*"
     );
 
-    return;
   }
 
-  socket.emit(
-    "netflix",
-    url
-  );
 
-  window.open(
-    url,
-    "_blank"
-  );
-}
+  // إرسال أمر إيقاف
+  function pauseVideo() {
 
+    pauseVideoLocal();
 
-socket.on(
-"netflix",
-(url)=>{
+    if (socket && room) {
 
-  const openIt =
-  confirm(
-    "🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟"
-  );
+      socket.emit("youtube-pause", {
+        room: room
+      });
 
-  if(openIt){
-
-    window.open(
-      url,
-      "_blank"
-    );
-  }
-
-});
-
-
-/* =========================
-   MP4
-========================= */
-
-function loadVideo(){
-
-  const url =
-  document.getElementById(
-    "videoUrl"
-  ).value.trim();
-
-  if(!url) return;
-
-  socket.emit(
-    "video",
-    url
-  );
-}
-
-
-socket.on(
-"video",
-(url)=>{
-
-  youtubeBox.style.display =
-  "none";
-
-  try{
-
-    if(
-      youtubeReady &&
-      youtubePlayer
-    ){
-      youtubePlayer.stopVideo();
     }
 
-  }catch(e){}
-
-  video.style.display =
-  "block";
-
-  video.src = url;
-
-  video.load();
-});
-
-
-function sendSync(){
-
-  if(receivingSync){
-    return;
   }
 
-  socket.emit(
-    "sync",
-    {
-      time:video.currentTime,
-      playing:!video.paused
-    }
-  );
-}
 
+  // إيقاف محلي
+  function pauseVideoLocal() {
 
-video.addEventListener(
-"play",
-sendSync
-);
+    if (!youtubeIframe) return;
 
-video.addEventListener(
-"pause",
-sendSync
-);
-
-video.addEventListener(
-"seeked",
-sendSync
-);
-
-
-socket.on(
-"sync",
-async(data)=>{
-
-  receivingSync = true;
-
-  if(
-    Math.abs(
-      video.currentTime -
-      data.time
-    ) > 1
-  ){
-
-    video.currentTime =
-    data.time;
-  }
-
-  if(data.playing){
-
-    try{
-      await video.play();
-    }catch(e){}
-
-  }else{
-
-    video.pause();
-  }
-
-  setTimeout(()=>{
-
-    receivingSync = false;
-
-  },300);
-});
-
-
-/* =========================
-   CHAT
-========================= */
-
-function addMessage(
-name,
-text,
-mine=false
-){
-
-  const div =
-  document.createElement("div");
-
-  div.className =
-  mine
-  ? "msg myMsg"
-  : "msg";
-
-  div.textContent =
-  name + ": " + text;
-
-  messages.appendChild(div);
-
-  messages.scrollTop =
-  messages.scrollHeight;
-}
-
-
-function sendMessage(){
-
-  const text =
-  messageInput
-  .value.trim();
-
-  if(!text) return;
-
-  addMessage(
-    myName,
-    text,
-    true
-  );
-
-  socket.emit(
-    "chat",
-    text
-  );
-
-  messageInput.value = "";
-}
-
-
-messageInput.addEventListener(
-"keydown",
-(event)=>{
-
-  if(event.key === "Enter"){
-
-    event.preventDefault();
-
-    sendMessage();
-  }
-
-});
-
-
-socket.on(
-"chat",
-(data)=>{
-
-  if(
-    data.name === myName
-  ){
-    return;
-  }
-
-  addMessage(
-    data.name || "زائر",
-    data.text || ""
-  );
-
-});
-
-
-socket.on(
-"system",
-(text)=>{
-
-  const div =
-  document.createElement("div");
-
-  div.className =
-  "msg systemMsg";
-
-  div.textContent =
-  "• " + text;
-
-  messages.appendChild(div);
-});
-
-
-/* =========================
-   ROOM STATE
-========================= */
-
-socket.on(
-"room-state",
-(state)=>{
-
-  if(!state) return;
-
-  if(state.youtube){
-
-    showYouTube(
-      state.youtube
+    youtubeIframe.contentWindow.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: "pauseVideo",
+        args: []
+      }),
+      "*"
     );
 
-    pendingYouTubeState = {
-      time:
-      state.youtubeTime || 0,
+  }
 
-      playing:
-      !!state.youtubePlaying
-    };
 
-    if(youtubeReady){
+  // إعادة الفيديو
+  function reloadVideo() {
 
-      setTimeout(()=>{
+    reloadVideoLocal();
 
-        applyYouTubeSync(
-          pendingYouTubeState
-        );
+    if (socket && room) {
 
-        pendingYouTubeState = null;
+      socket.emit("youtube-reload", {
+        room: room
+      });
 
-      },800);
     }
 
-    return;
   }
 
-  if(state.video){
 
-    youtubeBox.style.display =
-    "none";
+  function reloadVideoLocal() {
 
-    video.style.display =
-    "block";
+    if (!currentVideoId) return;
 
-    video.src =
-    state.video;
+    showVideo(currentVideoId);
 
-    video.load();
-
-    video.addEventListener(
-    "loadedmetadata",
-    async()=>{
-
-      video.currentTime =
-      state.time || 0;
-
-      if(state.playing){
-
-        try{
-          await video.play();
-        }catch(e){}
-
-      }
-
-    },
-    {once:true}
-    );
   }
 
-});
+
+  function setStatus(text) {
+
+    document.getElementById("status").textContent = text;
+
+  }
 
 </script>
 
