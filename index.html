@@ -7,12 +7,14 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   background:#08080f;
   color:white;
   font-family:Arial,sans-serif;
 }
+
 header{
   background:#141422;
   text-align:center;
@@ -20,17 +22,21 @@ header{
   font-size:30px;
   font-weight:bold;
 }
+
 .container{
   max-width:600px;
   margin:30px auto;
   padding:20px;
 }
+
 .card{
   background:#151520;
   padding:25px;
   border-radius:20px;
 }
+
 h1{text-align:center}
+
 input{
   width:100%;
   padding:18px;
@@ -39,6 +45,7 @@ input{
   border-radius:14px;
   font-size:18px;
 }
+
 button{
   width:100%;
   padding:17px;
@@ -49,34 +56,56 @@ button{
   color:white;
   font-size:19px;
   font-weight:bold;
+  cursor:pointer;
 }
+
 .netflix{
   background:#e50914;
 }
+
 video{
   width:100%;
   background:black;
   border-radius:16px;
   margin-top:15px;
 }
-#roomPage{display:none}
+
+#roomPage{
+  display:none;
+}
+
 #messages{
-  height:180px;
+  height:220px;
   overflow-y:auto;
   background:#0d0d16;
   border-radius:14px;
   padding:12px;
   margin-top:15px;
 }
+
 .msg{
-  padding:7px;
-  border-bottom:1px solid #222;
+  padding:9px;
+  margin-bottom:5px;
+  background:#191925;
+  border-radius:9px;
 }
+
+.myMsg{
+  background:#312d68;
+}
+
+.systemMsg{
+  color:#aaa;
+  text-align:center;
+  font-size:14px;
+}
+
 .code{
   color:#9b8cff;
   font-size:25px;
   font-weight:bold;
 }
+
 .note{
   font-size:13px;
   color:#aaa;
@@ -91,57 +120,92 @@ video{
 
 <div class="container">
 
-<div id="homePage" class="card">
+  <!-- الصفحة الرئيسية -->
+  <div id="homePage" class="card">
 
-  <h1>🍿 شاهدوا رزان</h1>
+    <h1>🍿 شاهدوا رزان</h1>
 
-  <input id="name" placeholder="اسمك">
+    <input id="name" placeholder="اسمك">
 
-  <button onclick="createRoom()">إنشاء غرفة</button>
+    <button type="button" onclick="createRoom()">
+      إنشاء غرفة
+    </button>
 
-  <input id="roomInput" placeholder="اكتب رمز الغرفة">
+    <input id="roomInput" placeholder="اكتب رمز الغرفة">
 
-  <button onclick="joinRoom()">دخول الغرفة</button>
+    <button type="button" onclick="joinRoom()">
+      دخول الغرفة
+    </button>
 
-</div>
+  </div>
 
 
-<div id="roomPage" class="card">
+  <!-- الغرفة -->
+  <div id="roomPage" class="card">
 
-  <h1>الغرفة</h1>
+    <h1>الغرفة</h1>
 
-  <p>
-    رمز الغرفة:
-    <span id="roomCode" class="code"></span>
-  </p>
+    <p>
+      رمز الغرفة:
+      <span id="roomCode" class="code"></span>
+    </p>
 
-  <input
-    id="netflixUrl"
-    placeholder="الصق رابط الفيلم أو الحلقة من Netflix"
-  >
+    <!-- Netflix -->
+    <input
+      id="netflixUrl"
+      placeholder="الصق رابط الفيلم أو الحلقة من Netflix"
+    >
 
-  <button class="netflix" onclick="openNetflixTogether()">
-    ▶ فتح Netflix للجميع
-  </button>
+    <button
+      type="button"
+      class="netflix"
+      onclick="openNetflixTogether()"
+    >
+      ▶ فتح Netflix للجميع
+    </button>
 
-  <p class="note">
-    الصق رابط الفيلم أو الحلقة ثم اضغط الزر.
-    سيتم إرسال نفس الرابط لأعضاء الغرفة.
-  </p>
+    <p class="note">
+      الصق رابط Netflix ثم اضغط الزر لإرساله لأعضاء الغرفة.
+    </p>
 
-  <input id="videoUrl" placeholder="رابط فيديو مباشر">
 
-  <button onclick="loadVideo()">تشغيل الفيديو للجميع</button>
+    <!-- الفيديو المباشر -->
+    <input
+      id="videoUrl"
+      placeholder="رابط فيديو مباشر"
+    >
 
-  <video id="video" controls playsinline></video>
+    <button
+      type="button"
+      onclick="loadVideo()"
+    >
+      تشغيل الفيديو للجميع
+    </button>
 
-  <div id="messages"></div>
+    <video
+      id="video"
+      controls
+      playsinline
+    ></video>
 
-  <input id="messageInput" placeholder="اكتب رسالة...">
 
-  <button onclick="sendMessage()">إرسال</button>
+    <!-- الدردشة -->
+    <div id="messages"></div>
 
-</div>
+    <input
+      id="messageInput"
+      placeholder="اكتب رسالة..."
+      autocomplete="off"
+    >
+
+    <button
+      type="button"
+      onclick="sendMessage()"
+    >
+      إرسال
+    </button>
+
+  </div>
 
 </div>
 
@@ -156,10 +220,17 @@ let currentRoom = "";
 let myName = "";
 let receivingSync = false;
 
-const video = document.getElementById("video");
-const messages = document.getElementById("messages");
+const video =
+  document.getElementById("video");
+
+const messages =
+  document.getElementById("messages");
+
+const messageInput =
+  document.getElementById("messageInput");
 
 
+// إنشاء رمز غرفة
 function randomRoom(){
 
   const chars =
@@ -177,10 +248,13 @@ function randomRoom(){
 }
 
 
+// إنشاء غرفة
 function createRoom(){
 
   myName =
-    document.getElementById("name").value.trim();
+    document.getElementById("name")
+    .value
+    .trim();
 
   if(!myName){
     alert("اكتب اسمك");
@@ -193,10 +267,13 @@ function createRoom(){
 }
 
 
+// دخول غرفة
 function joinRoom(){
 
   myName =
-    document.getElementById("name").value.trim();
+    document.getElementById("name")
+    .value
+    .trim();
 
   currentRoom =
     document.getElementById("roomInput")
@@ -218,6 +295,7 @@ function joinRoom(){
 }
 
 
+// فتح صفحة الغرفة
 function enterRoom(){
 
   document.getElementById("homePage")
@@ -236,8 +314,100 @@ function enterRoom(){
 }
 
 
-// NETFLIX
+// إضافة رسالة إلى الشاشة
+function addMessage(name, text, mine = false){
 
+  const div =
+    document.createElement("div");
+
+  div.className =
+    mine ? "msg myMsg" : "msg";
+
+  div.textContent =
+    name + ": " + text;
+
+  messages.appendChild(div);
+
+  messages.scrollTop =
+    messages.scrollHeight;
+}
+
+
+// إرسال رسالة
+function sendMessage(){
+
+  const text =
+    messageInput.value.trim();
+
+  if(!text){
+    return;
+  }
+
+  // تظهر عندي فورًا
+  addMessage(myName, text, true);
+
+  // إرسالها لباقي أعضاء الغرفة
+  socket.emit("chat", text);
+
+  messageInput.value = "";
+
+  messageInput.focus();
+}
+
+
+// الضغط على Enter يرسل
+messageInput.addEventListener(
+  "keydown",
+  function(event){
+
+    if(event.key === "Enter"){
+      event.preventDefault();
+      sendMessage();
+    }
+
+  }
+);
+
+
+// استقبال الرسائل
+socket.on("chat", (data)=>{
+
+  // السيرفر يرجع الرسالة للمرسل أيضًا
+  // لذلك لا نكرر رسالتي على الشاشة
+  if(data.name === myName){
+    return;
+  }
+
+  addMessage(
+    data.name || "زائر",
+    data.text || "",
+    false
+  );
+
+});
+
+
+// رسائل الدخول والخروج
+socket.on("system", (text)=>{
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    "msg systemMsg";
+
+  div.textContent =
+    "• " + text;
+
+  messages.appendChild(div);
+
+  messages.scrollTop =
+    messages.scrollHeight;
+
+});
+
+
+// Netflix
 function openNetflixTogether(){
 
   let url =
@@ -257,31 +427,27 @@ function openNetflixTogether(){
     return;
   }
 
-  // إرسال الرابط لباقي أعضاء الغرفة
   socket.emit("netflix", url);
 
-  // فتحه عند الشخص الذي ضغط الزر
   window.open(url, "_blank");
 }
 
 
-// استقبال رابط Netflix من شخص آخر
-
+// استقبال رابط Netflix
 socket.on("netflix", (url)=>{
 
-  const go = confirm(
-    "🍿 أحد أعضاء الغرفة فتح Netflix.\nفتح نفس الفيلم عندك؟"
+  const openIt = confirm(
+    "🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟"
   );
 
-  if(go){
+  if(openIt){
     window.open(url, "_blank");
   }
 
 });
 
 
-// الفيديو المباشر
-
+// تشغيل فيديو مباشر
 function loadVideo(){
 
   const url =
@@ -289,12 +455,15 @@ function loadVideo(){
     .value
     .trim();
 
-  if(!url) return;
+  if(!url){
+    return;
+  }
 
   socket.emit("video", url);
 }
 
 
+// استقبال الفيديو
 socket.on("video", (url)=>{
 
   video.src = url;
@@ -304,11 +473,12 @@ socket.on("video", (url)=>{
 });
 
 
-// مزامنة الفيديو
-
+// إرسال حالة الفيديو
 function sendSync(){
 
-  if(receivingSync) return;
+  if(receivingSync){
+    return;
+  }
 
   socket.emit("sync", {
     time: video.currentTime,
@@ -317,14 +487,23 @@ function sendSync(){
 
 }
 
+video.addEventListener(
+  "play",
+  sendSync
+);
 
-video.addEventListener("play", sendSync);
+video.addEventListener(
+  "pause",
+  sendSync
+);
 
-video.addEventListener("pause", sendSync);
+video.addEventListener(
+  "seeked",
+  sendSync
+);
 
-video.addEventListener("seeked", sendSync);
 
-
+// استقبال المزامنة
 socket.on("sync", async(data)=>{
 
   receivingSync = true;
@@ -356,9 +535,12 @@ socket.on("sync", async(data)=>{
 });
 
 
-// حالة الغرفة عند الدخول
-
+// حالة الغرفة
 socket.on("room-state", (state)=>{
+
+  if(!state){
+    return;
+  }
 
   if(state.video){
 
@@ -390,57 +572,16 @@ socket.on("room-state", (state)=>{
 });
 
 
-// الدردشة
+// حالة الاتصال
+socket.on("connect", ()=>{
 
-function sendMessage(){
-
-  const input =
-    document.getElementById("messageInput");
-
-  const text =
-    input.value.trim();
-
-  if(!text) return;
-
-  socket.emit("chat", text);
-
-  input.value = "";
-
-}
-
-
-socket.on("chat", (data)=>{
-
-  const div =
-    document.createElement("div");
-
-  div.className = "msg";
-
-  div.textContent =
-    data.name + ": " + data.text;
-
-  messages.appendChild(div);
-
-  messages.scrollTop =
-    messages.scrollHeight;
+  console.log("Connected");
 
 });
 
+socket.on("disconnect", ()=>{
 
-socket.on("system", (text)=>{
-
-  const div =
-    document.createElement("div");
-
-  div.className = "msg";
-
-  div.textContent =
-    "• " + text;
-
-  messages.appendChild(div);
-
-  messages.scrollTop =
-    messages.scrollHeight;
+  console.log("Disconnected");
 
 });
 
