@@ -92,6 +92,7 @@ video{
 <div class="container">
 
 <div id="homePage" class="card">
+
   <h1>🍿 شاهدوا رزان</h1>
 
   <input id="name" placeholder="اسمك">
@@ -101,27 +102,36 @@ video{
   <input id="roomInput" placeholder="اكتب رمز الغرفة">
 
   <button onclick="joinRoom()">دخول الغرفة</button>
+
 </div>
+
 
 <div id="roomPage" class="card">
 
   <h1>الغرفة</h1>
 
-  <p>رمز الغرفة:
+  <p>
+    رمز الغرفة:
     <span id="roomCode" class="code"></span>
   </p>
 
-  <button class="netflix" onclick="openNetflix()">
-    ▶ Netflix
+  <input
+    id="netflixUrl"
+    placeholder="الصق رابط الفيلم أو الحلقة من Netflix"
+  >
+
+  <button class="netflix" onclick="openNetflixTogether()">
+    ▶ فتح Netflix للجميع
   </button>
 
   <p class="note">
-    يفتح Netflix في نافذة منفصلة، ورزان تبقى للمزامنة والدردشة.
+    الصق رابط الفيلم أو الحلقة ثم اضغط الزر.
+    سيتم إرسال نفس الرابط لأعضاء الغرفة.
   </p>
 
   <input id="videoUrl" placeholder="رابط فيديو مباشر">
 
-  <button onclick="loadVideo()">تشغيل الفيديو</button>
+  <button onclick="loadVideo()">تشغيل الفيديو للجميع</button>
 
   <video id="video" controls playsinline></video>
 
@@ -135,9 +145,11 @@ video{
 
 </div>
 
+
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
+
 const socket = io();
 
 let currentRoom = "";
@@ -147,19 +159,28 @@ let receivingSync = false;
 const video = document.getElementById("video");
 const messages = document.getElementById("messages");
 
+
 function randomRoom(){
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  const chars =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
   let code = "";
 
-  for(let i=0;i<6;i++){
-    code += chars[Math.floor(Math.random()*chars.length)];
+  for(let i = 0; i < 6; i++){
+    code += chars[
+      Math.floor(Math.random() * chars.length)
+    ];
   }
 
   return code;
 }
 
+
 function createRoom(){
-  myName = document.getElementById("name").value.trim();
+
+  myName =
+    document.getElementById("name").value.trim();
 
   if(!myName){
     alert("اكتب اسمك");
@@ -167,13 +188,21 @@ function createRoom(){
   }
 
   currentRoom = randomRoom();
+
   enterRoom();
 }
 
+
 function joinRoom(){
-  myName = document.getElementById("name").value.trim();
+
+  myName =
+    document.getElementById("name").value.trim();
+
   currentRoom =
-    document.getElementById("roomInput").value.trim().toUpperCase();
+    document.getElementById("roomInput")
+    .value
+    .trim()
+    .toUpperCase();
 
   if(!myName){
     alert("اكتب اسمك");
@@ -188,10 +217,17 @@ function joinRoom(){
   enterRoom();
 }
 
+
 function enterRoom(){
-  document.getElementById("homePage").style.display = "none";
-  document.getElementById("roomPage").style.display = "block";
-  document.getElementById("roomCode").textContent = currentRoom;
+
+  document.getElementById("homePage")
+    .style.display = "none";
+
+  document.getElementById("roomPage")
+    .style.display = "block";
+
+  document.getElementById("roomCode")
+    .textContent = currentRoom;
 
   socket.emit("join", {
     room: currentRoom,
@@ -199,98 +235,215 @@ function enterRoom(){
   });
 }
 
-function openNetflix(){
-  window.open("https://www.netflix.com/", "_blank");
+
+// NETFLIX
+
+function openNetflixTogether(){
+
+  let url =
+    document.getElementById("netflixUrl")
+    .value
+    .trim();
+
+  if(!url){
+    url = "https://www.netflix.com/";
+  }
+
+  if(
+    !url.startsWith("https://www.netflix.com") &&
+    !url.startsWith("https://netflix.com")
+  ){
+    alert("الصق رابط Netflix صحيح");
+    return;
+  }
+
+  // إرسال الرابط لباقي أعضاء الغرفة
+  socket.emit("netflix", url);
+
+  // فتحه عند الشخص الذي ضغط الزر
+  window.open(url, "_blank");
 }
 
+
+// استقبال رابط Netflix من شخص آخر
+
+socket.on("netflix", (url)=>{
+
+  const go = confirm(
+    "🍿 أحد أعضاء الغرفة فتح Netflix.\nفتح نفس الفيلم عندك؟"
+  );
+
+  if(go){
+    window.open(url, "_blank");
+  }
+
+});
+
+
+// الفيديو المباشر
+
 function loadVideo(){
-  const url = document.getElementById("videoUrl").value.trim();
+
+  const url =
+    document.getElementById("videoUrl")
+    .value
+    .trim();
 
   if(!url) return;
 
   socket.emit("video", url);
 }
 
+
+socket.on("video", (url)=>{
+
+  video.src = url;
+
+  video.load();
+
+});
+
+
+// مزامنة الفيديو
+
 function sendSync(){
+
   if(receivingSync) return;
 
   socket.emit("sync", {
     time: video.currentTime,
     playing: !video.paused
   });
+
 }
+
 
 video.addEventListener("play", sendSync);
+
 video.addEventListener("pause", sendSync);
+
 video.addEventListener("seeked", sendSync);
 
-function sendMessage(){
-  const input = document.getElementById("messageInput");
-  const text = input.value.trim();
-
-  if(!text) return;
-
-  socket.emit("chat", text);
-  input.value = "";
-}
-
-socket.on("video", (url)=>{
-  video.src = url;
-  video.load();
-});
 
 socket.on("sync", async(data)=>{
+
   receivingSync = true;
 
-  if(Math.abs(video.currentTime - data.time) > 1){
+  if(
+    Math.abs(
+      video.currentTime - data.time
+    ) > 1
+  ){
     video.currentTime = data.time;
   }
 
   if(data.playing){
+
     try{
       await video.play();
     }catch(e){}
+
   }else{
+
     video.pause();
+
   }
 
   setTimeout(()=>{
     receivingSync = false;
   },300);
+
 });
+
+
+// حالة الغرفة عند الدخول
 
 socket.on("room-state", (state)=>{
+
   if(state.video){
+
     video.src = state.video;
+
     video.load();
 
-    video.addEventListener("loadedmetadata", async()=>{
-      video.currentTime = state.time || 0;
+    video.addEventListener(
+      "loadedmetadata",
+      async()=>{
 
-      if(state.playing){
-        try{
-          await video.play();
-        }catch(e){}
-      }
-    },{once:true});
+        video.currentTime =
+          state.time || 0;
+
+        if(state.playing){
+
+          try{
+            await video.play();
+          }catch(e){}
+
+        }
+
+      },
+      {once:true}
+    );
+
   }
+
 });
+
+
+// الدردشة
+
+function sendMessage(){
+
+  const input =
+    document.getElementById("messageInput");
+
+  const text =
+    input.value.trim();
+
+  if(!text) return;
+
+  socket.emit("chat", text);
+
+  input.value = "";
+
+}
+
 
 socket.on("chat", (data)=>{
-  const div = document.createElement("div");
+
+  const div =
+    document.createElement("div");
+
   div.className = "msg";
-  div.textContent = data.name + ": " + data.text;
+
+  div.textContent =
+    data.name + ": " + data.text;
+
   messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+
+  messages.scrollTop =
+    messages.scrollHeight;
+
 });
 
+
 socket.on("system", (text)=>{
-  const div = document.createElement("div");
+
+  const div =
+    document.createElement("div");
+
   div.className = "msg";
-  div.textContent = "• " + text;
+
+  div.textContent =
+    "• " + text;
+
   messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
+
+  messages.scrollTop =
+    messages.scrollHeight;
+
 });
+
 </script>
 
 </body>
