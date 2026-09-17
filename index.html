@@ -188,7 +188,7 @@
 
     document.getElementById("video").src = url;
 
-    socket.emit("video-change", {
+socket.emit("video", {
       room: currentRoom,
       url: url
     });
