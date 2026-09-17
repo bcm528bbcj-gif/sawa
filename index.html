@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
 
@@ -9,24 +8,16 @@ content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>رزان</title>
 
-<!-- إعدادات التطبيق -->
 <link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg">
 
 <meta name="theme-color" content="#141422">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style"
-content="black-translucent">
-
-<meta name="apple-mobile-web-app-title"
-content="رزان">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="رزان">
 
 <style>
-
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -40,7 +31,7 @@ header{
   background:#141422;
   text-align:center;
   padding:25px;
-  padding-top:max(25px, env(safe-area-inset-top));
+  padding-top:max(25px,env(safe-area-inset-top));
   font-size:30px;
   font-weight:bold;
 }
@@ -57,9 +48,7 @@ header{
   border-radius:20px;
 }
 
-h1{
-  text-align:center;
-}
+h1{text-align:center}
 
 input{
   width:100%;
@@ -80,12 +69,10 @@ button{
   color:white;
   font-size:19px;
   font-weight:bold;
-  cursor:pointer;
 }
 
-.netflix{
-  background:#e50914;
-}
+.netflix{background:#e50914}
+.youtube{background:#ff0000}
 
 video{
   width:100%;
@@ -94,9 +81,17 @@ video{
   margin-top:15px;
 }
 
-#roomPage{
+#youtubePlayer{
   display:none;
+  width:100%;
+  aspect-ratio:16/9;
+  border:0;
+  border-radius:16px;
+  margin-top:15px;
+  background:black;
 }
+
+#roomPage{display:none}
 
 #messages{
   height:220px;
@@ -114,9 +109,7 @@ video{
   border-radius:9px;
 }
 
-.myMsg{
-  background:#312d68;
-}
+.myMsg{background:#312d68}
 
 .systemMsg{
   color:#aaa;
@@ -135,55 +128,33 @@ video{
   color:#aaa;
   text-align:center;
 }
-
 </style>
-
 </head>
-
 
 <body>
 
-<header>
-🎬 رزان
-</header>
-
+<header>🎬 رزان</header>
 
 <div class="container">
-
-
-<!-- الرئيسية -->
 
 <div id="homePage" class="card">
 
 <h1>🍿 شاهدوا رزان</h1>
 
-<input
-id="name"
-placeholder="اسمك"
-autocomplete="off">
+<input id="name" placeholder="اسمك" autocomplete="off">
 
-<button
-type="button"
-onclick="createRoom()">
+<button type="button" onclick="createRoom()">
 إنشاء غرفة
 </button>
 
-<input
-id="roomInput"
-placeholder="اكتب رمز الغرفة"
-autocomplete="off">
+<input id="roomInput" placeholder="اكتب رمز الغرفة" autocomplete="off">
 
-<button
-type="button"
-onclick="joinRoom()">
+<button type="button" onclick="joinRoom()">
 دخول الغرفة
 </button>
 
 </div>
 
-
-
-<!-- الغرفة -->
 
 <div id="roomPage" class="card">
 
@@ -191,11 +162,32 @@ onclick="joinRoom()">
 
 <p>
 رمز الغرفة:
-<span
-id="roomCode"
-class="code">
-</span>
+<span id="roomCode" class="code"></span>
 </p>
+
+
+<!-- YouTube -->
+
+<input
+id="youtubeUrl"
+placeholder="الصق رابط فيديو YouTube">
+
+<button
+type="button"
+class="youtube"
+onclick="loadYouTube()">
+▶ تشغيل YouTube للجميع
+</button>
+
+<p class="note">
+الصق رابط فيديو YouTube وسيظهر داخل رزان عند أعضاء الغرفة.
+</p>
+
+<iframe
+id="youtubePlayer"
+allow="autoplay; encrypted-media; picture-in-picture"
+allowfullscreen>
+</iframe>
 
 
 <!-- Netflix -->
@@ -208,37 +200,23 @@ placeholder="الصق رابط الفيلم أو الحلقة من Netflix">
 type="button"
 class="netflix"
 onclick="openNetflixTogether()">
-
 ▶ فتح Netflix للجميع
-
 </button>
 
-<p class="note">
-الصق رابط Netflix ثم اضغط الزر لإرساله لأعضاء الغرفة.
-</p>
 
-
-
-<!-- الفيديو -->
+<!-- فيديو مباشر -->
 
 <input
 id="videoUrl"
-placeholder="رابط فيديو مباشر">
+placeholder="رابط فيديو مباشر MP4">
 
 <button
 type="button"
 onclick="loadVideo()">
-
 تشغيل الفيديو للجميع
-
 </button>
 
-<video
-id="video"
-controls
-playsinline>
-</video>
-
+<video id="video" controls playsinline></video>
 
 
 <!-- الدردشة -->
@@ -253,20 +231,14 @@ autocomplete="off">
 <button
 type="button"
 onclick="sendMessage()">
-
 إرسال
-
 </button>
 
-
 </div>
-
 </div>
-
 
 
 <script src="/socket.io/socket.io.js"></script>
-
 
 <script>
 
@@ -276,534 +248,372 @@ let currentRoom = "";
 let myName = "";
 let receivingSync = false;
 
-const video =
-document.getElementById("video");
+const video = document.getElementById("video");
+const messages = document.getElementById("messages");
+const messageInput = document.getElementById("messageInput");
+const youtubePlayer = document.getElementById("youtubePlayer");
 
-const messages =
-document.getElementById("messages");
-
-const messageInput =
-document.getElementById("messageInput");
-
-
-
-/* إنشاء رمز غرفة */
 
 function randomRoom(){
 
-const chars =
-"ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const chars =
+  "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-let code = "";
+  let code = "";
 
-for(let i = 0; i < 6; i++){
+  for(let i=0;i<6;i++){
+    code += chars[
+      Math.floor(Math.random()*chars.length)
+    ];
+  }
 
-code +=
-chars[
-Math.floor(
-Math.random() * chars.length
-)
-];
-
+  return code;
 }
 
-return code;
-
-}
-
-
-
-/* إنشاء غرفة */
 
 function createRoom(){
 
-myName =
-document
-.getElementById("name")
-.value
-.trim();
+  myName =
+  document.getElementById("name").value.trim();
 
-if(!myName){
+  if(!myName){
+    alert("اكتب اسمك");
+    return;
+  }
 
-alert("اكتب اسمك");
+  currentRoom = randomRoom();
 
-return;
-
+  enterRoom();
 }
 
-currentRoom =
-randomRoom();
-
-enterRoom();
-
-}
-
-
-
-/* دخول الغرفة */
 
 function joinRoom(){
 
-myName =
-document
-.getElementById("name")
-.value
-.trim();
+  myName =
+  document.getElementById("name").value.trim();
 
-currentRoom =
-document
-.getElementById("roomInput")
-.value
-.trim()
-.toUpperCase();
+  currentRoom =
+  document.getElementById("roomInput")
+  .value.trim().toUpperCase();
 
-if(!myName){
+  if(!myName){
+    alert("اكتب اسمك");
+    return;
+  }
 
-alert("اكتب اسمك");
+  if(!currentRoom){
+    alert("اكتب رمز الغرفة");
+    return;
+  }
 
-return;
-
+  enterRoom();
 }
 
-if(!currentRoom){
-
-alert("اكتب رمز الغرفة");
-
-return;
-
-}
-
-enterRoom();
-
-}
-
-
-
-/* فتح الغرفة */
 
 function enterRoom(){
 
-document
-.getElementById("homePage")
-.style.display =
-"none";
+  document.getElementById("homePage")
+  .style.display = "none";
 
-document
-.getElementById("roomPage")
-.style.display =
-"block";
+  document.getElementById("roomPage")
+  .style.display = "block";
 
-document
-.getElementById("roomCode")
-.textContent =
-currentRoom;
+  document.getElementById("roomCode")
+  .textContent = currentRoom;
 
-socket.emit(
-"join",
-{
-room:currentRoom,
-name:myName
-}
-);
-
+  socket.emit("join",{
+    room:currentRoom,
+    name:myName
+  });
 }
 
 
+/* YOUTUBE */
 
-/* إضافة رسالة */
+function getYouTubeId(url){
 
-function addMessage(
-name,
-text,
-mine = false
-){
+  try{
 
-const div =
-document.createElement("div");
+    const parsed = new URL(url);
 
-div.className =
-mine
-? "msg myMsg"
-: "msg";
+    if(parsed.hostname.includes("youtu.be")){
+      return parsed.pathname.slice(1).split("/")[0];
+    }
 
-div.textContent =
-name + ": " + text;
+    if(parsed.pathname.includes("/shorts/")){
+      return parsed.pathname.split("/shorts/")[1].split("/")[0];
+    }
 
-messages.appendChild(div);
+    if(parsed.pathname.includes("/embed/")){
+      return parsed.pathname.split("/embed/")[1].split("/")[0];
+    }
 
-messages.scrollTop =
-messages.scrollHeight;
+    return parsed.searchParams.get("v");
 
+  }catch(e){
+    return null;
+  }
 }
 
 
+function showYouTube(url){
 
-/* إرسال رسالة */
+  const id = getYouTubeId(url);
 
-function sendMessage(){
+  if(!id){
+    alert("رابط YouTube غير صحيح");
+    return;
+  }
 
-const text =
-messageInput
-.value
-.trim();
+  video.pause();
+  video.style.display = "none";
 
-if(!text){
-return;
-}
+  youtubePlayer.style.display = "block";
 
-addMessage(
-myName,
-text,
-true
-);
-
-socket.emit(
-"chat",
-text
-);
-
-messageInput.value = "";
-
-messageInput.focus();
-
+  youtubePlayer.src =
+  "https://www.youtube.com/embed/" +
+  encodeURIComponent(id) +
+  "?playsinline=1";
 }
 
 
+function loadYouTube(){
 
-/* إرسال بالإنتر */
+  const url =
+  document.getElementById("youtubeUrl")
+  .value.trim();
 
-messageInput.addEventListener(
-"keydown",
-function(event){
+  if(!getYouTubeId(url)){
+    alert("الصق رابط YouTube صحيح");
+    return;
+  }
 
-if(event.key === "Enter"){
-
-event.preventDefault();
-
-sendMessage();
-
+  socket.emit("youtube",url);
 }
 
-}
-);
+
+socket.on("youtube",(url)=>{
+  showYouTube(url);
+});
 
 
-
-/* استقبال الدردشة */
-
-socket.on(
-"chat",
-(data)=>{
-
-if(
-data.name === myName
-){
-return;
-}
-
-addMessage(
-data.name || "زائر",
-data.text || "",
-false
-);
-
-}
-);
-
-
-
-/* رسائل النظام */
-
-socket.on(
-"system",
-(text)=>{
-
-const div =
-document.createElement("div");
-
-div.className =
-"msg systemMsg";
-
-div.textContent =
-"• " + text;
-
-messages.appendChild(div);
-
-messages.scrollTop =
-messages.scrollHeight;
-
-}
-);
-
-
-
-/* Netflix */
+/* NETFLIX */
 
 function openNetflixTogether(){
 
-let url =
-document
-.getElementById("netflixUrl")
-.value
-.trim();
+  let url =
+  document.getElementById("netflixUrl")
+  .value.trim();
 
-if(!url){
+  if(!url){
+    url = "https://www.netflix.com/";
+  }
 
-url =
-"https://www.netflix.com/";
+  if(
+    !url.startsWith("https://www.netflix.com") &&
+    !url.startsWith("https://netflix.com")
+  ){
+    alert("الصق رابط Netflix صحيح");
+    return;
+  }
 
-}
+  socket.emit("netflix",url);
 
-if(
-!url.startsWith(
-"https://www.netflix.com"
-)
-&&
-!url.startsWith(
-"https://netflix.com"
-)
-){
-
-alert(
-"الصق رابط Netflix صحيح"
-);
-
-return;
-
-}
-
-socket.emit(
-"netflix",
-url
-);
-
-window.open(
-url,
-"_blank"
-);
-
+  window.open(url,"_blank");
 }
 
 
+socket.on("netflix",(url)=>{
 
-/* استقبال Netflix */
+  const openIt =
+  confirm("🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟");
 
-socket.on(
-"netflix",
-(url)=>{
+  if(openIt){
+    window.open(url,"_blank");
+  }
 
-const openIt =
-confirm(
-"🍿 تم إرسال رابط Netflix لك. هل تريد فتحه؟"
-);
-
-if(openIt){
-
-window.open(
-url,
-"_blank"
-);
-
-}
-
-}
-);
+});
 
 
-
-/* فيديو مباشر */
+/* VIDEO */
 
 function loadVideo(){
 
-const url =
-document
-.getElementById("videoUrl")
-.value
-.trim();
+  const url =
+  document.getElementById("videoUrl")
+  .value.trim();
 
-if(!url){
-return;
-}
+  if(!url) return;
 
-socket.emit(
-"video",
-url
-);
-
+  socket.emit("video",url);
 }
 
 
+socket.on("video",(url)=>{
 
-/* استقبال الفيديو */
+  youtubePlayer.style.display = "none";
+  youtubePlayer.src = "";
 
-socket.on(
-"video",
-(url)=>{
+  video.style.display = "block";
+  video.src = url;
+  video.load();
 
-video.src = url;
+});
 
-video.load();
-
-}
-);
-
-
-
-/* مزامنة الفيديو */
 
 function sendSync(){
 
-if(receivingSync){
-return;
-}
+  if(receivingSync) return;
 
-socket.emit(
-"sync",
-{
-time:video.currentTime,
-playing:!video.paused
-}
-);
+  socket.emit("sync",{
+    time:video.currentTime,
+    playing:!video.paused
+  });
 
 }
 
 
-video.addEventListener(
-"play",
-sendSync
-);
-
-video.addEventListener(
-"pause",
-sendSync
-);
-
-video.addEventListener(
-"seeked",
-sendSync
-);
+video.addEventListener("play",sendSync);
+video.addEventListener("pause",sendSync);
+video.addEventListener("seeked",sendSync);
 
 
+socket.on("sync",async(data)=>{
 
-/* استقبال المزامنة */
+  receivingSync = true;
 
-socket.on(
-"sync",
-async(data)=>{
+  if(Math.abs(video.currentTime-data.time)>1){
+    video.currentTime = data.time;
+  }
 
-receivingSync = true;
+  if(data.playing){
 
-if(
-Math.abs(
-video.currentTime -
-data.time
-) > 1
-){
+    try{
+      await video.play();
+    }catch(e){}
 
-video.currentTime =
-data.time;
+  }else{
+    video.pause();
+  }
 
+  setTimeout(()=>{
+    receivingSync = false;
+  },300);
+
+});
+
+
+/* CHAT */
+
+function addMessage(name,text,mine=false){
+
+  const div =
+  document.createElement("div");
+
+  div.className =
+  mine ? "msg myMsg" : "msg";
+
+  div.textContent =
+  name + ": " + text;
+
+  messages.appendChild(div);
+
+  messages.scrollTop =
+  messages.scrollHeight;
 }
 
-if(data.playing){
 
-try{
+function sendMessage(){
 
-await video.play();
+  const text =
+  messageInput.value.trim();
 
-}catch(e){}
+  if(!text) return;
 
-}else{
+  addMessage(myName,text,true);
 
-video.pause();
+  socket.emit("chat",text);
 
+  messageInput.value = "";
 }
 
-setTimeout(
-()=>{
 
-receivingSync = false;
+messageInput.addEventListener(
+"keydown",
+(event)=>{
 
-},
-300
-);
+  if(event.key==="Enter"){
+    event.preventDefault();
+    sendMessage();
+  }
 
-}
-);
-
-
-
-/* حالة الغرفة */
-
-socket.on(
-"room-state",
-(state)=>{
-
-if(!state){
-return;
-}
-
-if(state.video){
-
-video.src =
-state.video;
-
-video.load();
-
-video.addEventListener(
-"loadedmetadata",
-async()=>{
-
-video.currentTime =
-state.time || 0;
-
-if(state.playing){
-
-try{
-
-await video.play();
-
-}catch(e){}
-
-}
-
-},
-{
-once:true
-}
-);
-
-}
-
-}
-);
+});
 
 
+socket.on("chat",(data)=>{
 
-/* الاتصال */
+  if(data.name===myName) return;
 
-socket.on(
-"connect",
-()=>{
+  addMessage(
+    data.name || "زائر",
+    data.text || ""
+  );
 
-console.log(
-"Connected"
-);
-
-}
-);
+});
 
 
-socket.on(
-"disconnect",
-()=>{
+socket.on("system",(text)=>{
 
-console.log(
-"Disconnected"
-);
+  const div =
+  document.createElement("div");
 
-}
-);
+  div.className =
+  "msg systemMsg";
+
+  div.textContent =
+  "• " + text;
+
+  messages.appendChild(div);
+
+});
+
+
+/* ROOM STATE */
+
+socket.on("room-state",(state)=>{
+
+  if(!state) return;
+
+  if(state.youtube){
+    showYouTube(state.youtube);
+    return;
+  }
+
+  if(state.video){
+
+    video.src = state.video;
+    video.load();
+
+    video.addEventListener(
+    "loadedmetadata",
+    async()=>{
+
+      video.currentTime =
+      state.time || 0;
+
+      if(state.playing){
+        try{
+          await video.play();
+        }catch(e){}
+      }
+
+    },
+    {once:true}
+    );
+
+  }
+
+});
 
 </script>
 
