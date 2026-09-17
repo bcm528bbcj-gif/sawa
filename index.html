@@ -140,9 +140,7 @@
 <script>
   const socket = io();
 
-  let currentRoom = "";
-  let username = "";
-
+  let currentRoom
   function createRoom() {
     username =
       document.getElementById("name").value.trim() || "ضيف";
@@ -188,11 +186,8 @@
 
     document.getElementById("video").src = url;
 
-socket.emit("video", {
-      room: currentRoom,
-      url: url
-    });
-  }
+socket.emit("video", url);
+  
 
   function sendMessage() {
     const input = document.getElementById("message");
